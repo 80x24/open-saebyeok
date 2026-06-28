@@ -15,10 +15,16 @@ if ! command -v claude >/dev/null 2>&1; then
 fi
 echo "✓ claude CLI: $(claude --version 2>/dev/null | head -1)"
 
-# 1-b) bun 확인
+# 1-b) bun 확인 — 없으면 자동 설치 (비개발자가 런타임을 의식하지 않게)
 if ! command -v bun >/dev/null 2>&1; then
-  echo "✗ bun 이 없습니다. 설치: curl -fsSL https://bun.sh/install | bash  (또는 https://bun.sh)"
-  exit 1
+  echo "▶ bun 런타임이 없어 자동 설치합니다..."
+  curl -fsSL https://bun.sh/install | bash
+  export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+  export PATH="$BUN_INSTALL/bin:$PATH"
+  if ! command -v bun >/dev/null 2>&1; then
+    echo "✗ bun 자동 설치 실패. 수동 설치 후 다시 실행: https://bun.sh"
+    exit 1
+  fi
 fi
 echo "✓ bun: $(bun --version)"
 

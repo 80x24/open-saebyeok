@@ -17,18 +17,16 @@
 
 ## 빠른 시작
 
-### 0. Claude Code & Bun 설치 (이미 있으면 건너뛰기)
+### 0. Claude Code 설치 (이미 있으면 건너뛰기)
 
-open-saebyeok 은 **Claude Code(`claude` CLI) + 구독(Pro/Max) 로그인** 과 **Bun** 런타임이 필요합니다.
+필요한 건 **Claude Code(`claude` CLI) + 구독(Pro/Max) 로그인** 하나뿐입니다.
+봇 런타임(Bun)은 `install.sh` 가 없으면 **자동으로 설치**하므로 따로 신경 쓸 필요 없습니다.
 
 ```bash
-# Claude Code (macOS / Linux)
+# macOS / Linux
 curl -fsSL https://claude.ai/install.sh | bash      # 또는: brew install --cask claude-code
 claude --version                                     # 설치 확인
 claude                                                # 첫 실행 → 브라우저에서 구독 OAuth 로그인
-
-# Bun 런타임
-curl -fsSL https://bun.sh/install | bash
 ```
 
 가이드: [Claude Code 빠른 시작](https://code.claude.com/docs/en/quickstart.md) · [설치 문제 해결](https://code.claude.com/docs/en/troubleshoot-install.md)
