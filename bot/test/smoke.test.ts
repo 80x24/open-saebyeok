@@ -82,6 +82,17 @@ describe('③ 이름 온보딩 흐름 (claude mock)', () => {
     await handler({ text: 'hi', userId: 'x', isOwner: false }, noopReply())
     expect(called).toBe(false)
   })
+  test('/restart → restart 콜백 호출 + 안내', async () => {
+    let restarted = false
+    const handler = createMessageHandler({
+      claudeHome: home, chat: async () => ({ response: '', display: '' }),
+      cancel: () => true, clear: () => {}, isBusy: () => false, restart: () => { restarted = true },
+    })
+    const reply = noopReply()
+    await handler({ text: '/restart', userId: 'u1', isOwner: true }, reply)
+    expect(restarted).toBe(true)
+    expect(reply.last()).toContain('재시작')
+  })
   test('/clear 명령 → clear 호출 + 안내', async () => {
     let cleared = false
     const handler = createMessageHandler({

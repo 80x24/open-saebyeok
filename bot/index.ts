@@ -1,5 +1,5 @@
 // open-saebyeok 진입점
-// 1) CHANNEL 환경변수로 메신저 어댑터를 고른다 (telegram | slack)
+// 1) CHANNEL 환경변수로 메신저 어댑터를 고른다 (미설정이면 셋업 위자드로 유도)
 // 2) 아직 이름이 없으면(부트스트랩 미완료) 최우선으로 이름부터 묻는다
 // 3) 메시지를 claude -p 로 흘려보내고 스트리밍 응답을 돌려준다
 
@@ -9,19 +9,12 @@ import { chatStreamWithRetry, cancelStream, clearSession, isBusy } from './claud
 import { createMessageHandler } from './handler'
 import { needsBootstrap } from './bootstrap'
 import { startHeartbeat } from './heartbeat'
-import type { Channel } from './channels/channel'
+import { loadChannel } from './channels/load'
 
 const CLAUDE_HOME = process.env.CLAUDE_HOME || join(homedir(), '.claude')
 
-async function loadChannel(): Promise<Channel> {
-  const name = (process.env.CHANNEL || 'telegram').toLowerCase()
-  if (name === 'telegram') return (await import('./channels/telegram')).createTelegramChannel()
-  if (name === 'slack') return (await import('./channels/slack')).createSlackChannel()
-  throw new Error(`알 수 없는 CHANNEL: ${name} (telegram | slack)`)
-}
-
 const main = async () => {
-  const channel = await loadChannel()
+  const channel = await loadChannel(process.env.CHANNEL || '')
   console.log(`[open-saebyeok] channel=${channel.name} CLAUDE_HOME=${CLAUDE_HOME}`)
 
   if (needsBootstrap(CLAUDE_HOME)) {
@@ -38,6 +31,7 @@ const main = async () => {
     cancel: cancelStream,
     clear: clearSession,
     isBusy,
+    restart: () => { setTimeout(() => process.exit(0), 500) }, // run.sh 가 다시 띄운다
   })
 
   // 하트비트 (기본 OFF — HEARTBEAT_CRON 설정 시에만)

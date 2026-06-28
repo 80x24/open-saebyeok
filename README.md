@@ -27,21 +27,30 @@ Claude Code 세션에서 이렇게 말하면 됩니다:
 git clone https://github.com/80x24/open-saebyeok ~/.claude/open-saebyeok
 cd ~/.claude/open-saebyeok
 ./install.sh                  # ~/.claude 에 골격 배치 + 봇 의존성 설치 (기존 파일 보존)
-cp .env.example .env          # 채널 토큰 입력
-cd bot && ./run.sh
+# 그 다음 Claude Code 에서 "설정 시작" → 채널·토큰을 대화로 설정 → 봇 기동
 ```
 
 전제: `claude` CLI 가 설치돼 있고 **구독(Max/Pro) OAuth 로 로그인**돼 있어야 합니다.
 
-## 첫 실행 — 이름 온보딩
+## 첫 실행 — 대화형 온보딩
 
-메신저로 첫 메시지를 보내면, 에이전트가 **가장 먼저 "저를 뭐라고 부를까요?"** 라고 물어봅니다.
-이름(과 가벼운 성격 한두 가지)을 답하면 `identity/SOUL.md` 를 채우고, 그때부터 그 인격으로 동작합니다.
-이름 대신 다른 걸 먼저 물어봐도 됩니다 — 답한 뒤 자연스럽게 이름 얘기로 돌아옵니다.
+설치 후 Claude Code 에서 **"설정 시작"** 이라고 하면, 에이전트가 위자드로 끝까지 안내합니다:
+
+1. **채널 선택 & 토큰** — 텔레그램/슬랙 중 고르고, 토큰 발급법을 단계별로 안내받아 `.env` 가 채워집니다. (`identity/SETUP.md`)
+2. **봇 기동** — `cd bot && ./run.sh`
+3. **이름 정하기** — 메신저로 첫 메시지를 보내면, 에이전트가 가장 먼저 **"저를 뭐라고 부를까요?"** 라고 물어봅니다. (`identity/BOOTSTRAP.md`)
+
+이름 대신 다른 걸 먼저 물어봐도 됩니다 — 답한 뒤 자연스럽게 돌아옵니다.
+
+## 명령어
+
+- `/restart` — 봇 재시작 (설정 변경·업데이트 적용)
+- `/clear` — 대화 세션 초기화 · `/cancel` — 진행 중 응답 취소
+- `/skill list` · `/skill approve <이름>` · `/skill reject <이름>` — 스킬 승인 게이트
 
 ## 채널 전환
 
-`.env` 에서 한 줄 바꾸고 봇을 재시작(`./run.sh`)하면 됩니다. (`CHANNEL`은 봇 시작 시 1회 읽습니다)
+`.env` 에서 한 줄 바꾸고 봇을 재시작하면 됩니다. 재시작은 봇에게 **`/restart`** 라고 해도 됩니다. (`CHANNEL`은 봇 시작 시 1회 읽습니다)
 
 ```bash
 CHANNEL=telegram   # 또는 slack

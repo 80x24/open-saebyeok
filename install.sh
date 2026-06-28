@@ -36,6 +36,7 @@ copy_if_absent "$REPO_DIR/identity/CLAUDE.template.md"   "$CLAUDE_HOME/CLAUDE.md
 copy_if_absent "$REPO_DIR/identity/SOUL.template.md"     "$CLAUDE_HOME/identity/SOUL.md"
 copy_if_absent "$REPO_DIR/identity/IDENTITY.template.md" "$CLAUDE_HOME/identity/IDENTITY.md"
 cp "$REPO_DIR/identity/BOOTSTRAP.md" "$CLAUDE_HOME/identity/BOOTSTRAP.md"   # 항상 최신 유지
+cp "$REPO_DIR/identity/SETUP.md"     "$CLAUDE_HOME/identity/SETUP.md"       # 셋업 위자드
 
 # 5) .env 준비
 if [ ! -e "$REPO_DIR/.env" ]; then
@@ -45,7 +46,8 @@ fi
 cat <<EOF
 
 ✅ 설치 완료. 다음 단계:
-  1) $REPO_DIR/.env 에 채널 토큰 입력 (CHANNEL=telegram 또는 slack)
+  1) Claude Code 에서 "설정 시작" 이라고 하세요 — 채널·토큰을 대화로 안내합니다.
+     (또는 직접 $REPO_DIR/.env 에 CHANNEL·토큰 입력)
   2) cd $REPO_DIR/bot && ./run.sh
   3) 메신저로 첫 메시지를 보내면 — 에이전트가 가장 먼저 "이름"을 물어봅니다.
 EOF

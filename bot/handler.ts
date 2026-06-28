@@ -10,6 +10,8 @@ export interface HandlerDeps {
   cancel: () => boolean
   clear: () => void
   isBusy: () => boolean
+  /** 봇 프로세스 재시작 (run.sh 가 다시 띄움). 미주입이면 /restart 비활성 */
+  restart?: () => void
 }
 
 export function createMessageHandler(deps: HandlerDeps) {
@@ -19,6 +21,11 @@ export function createMessageHandler(deps: HandlerDeps) {
 
     if (text === '/cancel') { deps.cancel(); await reply.final('취소했어요.'); return }
     if (text === '/clear') { deps.clear(); await reply.final('세션을 초기화했어요.'); return }
+    if (text === '/restart') {
+      if (deps.restart) { await reply.final('🔄 재시작할게요. 잠시 후 다시 인사드릴게요.'); deps.restart() }
+      else { await reply.final('재시작이 지원되지 않는 환경이에요.') }
+      return
+    }
 
     // /skill 명령 — 스킬 승인 게이트 (busy 와 무관하게 처리)
     const skillReply = handleSkillCommand(deps.claudeHome, text)
