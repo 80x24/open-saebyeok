@@ -83,10 +83,17 @@ EOF
 
 **필요한 것:** Redis 하나(예: Upstash 무료 tier) + 작은 상시 서버 하나(예: Fly, 월 ~$2).
 
-1. **Redis 만들기** — Upstash 등에서 Redis 생성 → 연결 URL(`redis://...`) 복사.
-2. **relay 배포** — 외부 서버(Fly 등)에 이 저장소를 올리고 환경변수 설정: `MODE=relay`, `REDIS_URL`, `CHANNEL`, 그리고 메신저 토큰. 배포 골격은 저장소의 `Dockerfile` · `fly.toml` 참고.
-3. **이 컴퓨터를 worker 로** — `bot/.env` 에 `MODE=worker` 와 `REDIS_URL` 을 넣고 `./run.sh`.
-4. **메신저 토큰은 relay 에만** — 로컬(worker)에서는 메신저 토큰을 빼세요(이중 수신 방지). worker 는 Redis 만 봅니다.
+**셋업 위자드로 진행하세요 (권장):**
+```bash
+cd <설치경로> && bash setup-relay.sh
+```
+위자드가 묻는 대로 답하면 — Redis URL 을 받아 **이 컴퓨터를 worker 로 자동 전환**(bot/.env)하고, **relay 배포(Fly) 명령을 안내**합니다.
+
+직접 단계로 하려면:
+1. **Redis 만들기** — Upstash 등에서 생성 → 연결 URL(`redis://...`) 복사.
+2. **이 컴퓨터를 worker 로** — `bash setup-relay.sh worker redis://...` (bot/.env 에 `MODE=worker`+`REDIS_URL` 자동 설정).
+3. **relay 배포** — 외부 서버(Fly)에 `MODE=relay`+`REDIS_URL`+`CHANNEL`+메신저 토큰으로 배포. 골격: `Dockerfile`·`fly.toml`. (`flyctl launch --no-deploy` → `flyctl secrets set ...` → `flyctl deploy`)
+4. **메신저 토큰은 relay 에만** — worker(이 컴퓨터) .env 에선 비우세요(이중 수신 방지).
 
 > relay 와 worker 는 **같은 코드**입니다 — `MODE` 환경변수만 다릅니다. 코어 동작·정체성·기억은 그대로예요. relay 가 worker 의 응답을 `RELAY_TIMEOUT_SEC`(기본 8초) 안에 못 받으면 "나중에 처리"로 미루고, worker 가 켜지면 그 일을 가져가 처리합니다.
 

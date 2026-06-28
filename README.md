@@ -104,6 +104,7 @@ mure/
 ├─ install.sh            # ~/.mure 배치 + 인증 점검 + bun 자동설치
 ├─ upgrade.sh            # 코드만 갱신 (데이터 보존)
 ├─ migrate.sh            # 레거시 ~/.claude → ~/.mure 비파괴 이전
+├─ setup-relay.sh        # relay 셋업 위자드 (worker 자동전환 + 배포 안내)
 ├─ Dockerfile · fly.toml # relay 배포 골격 (외부 상시 서버)
 ├─ bot/
 │  ├─ index.ts           # MODE 분기(standalone/worker/relay) + 메시지 루프
@@ -121,7 +122,7 @@ mure/
 ### 실행 모드
 
 - **standalone** (기본): 이 컴퓨터에서 메신저 입구+처리 모두.
-- **relay + worker**: 외출 중 노트북을 꺼도 작동. 외부 상시 서버(relay)가 메신저를 받고, 로컬(worker)이 켜져 있으면 위임 / 꺼져 있으면 "나중에 처리"(켜지면 이어서 답). `MODE` 환경변수로 전환하며 **코어 코드는 동일**. Redis 큐로 연결. (설정: `identity/SETUP.md` 의 relay 섹션, 배포: `Dockerfile`/`fly.toml`)
+- **relay + worker**: 외출 중 노트북을 꺼도 작동. 외부 상시 서버(relay)가 메신저를 받고, 로컬(worker)이 켜져 있으면 위임 / 꺼져 있으면 "나중에 처리"(켜지면 이어서 답). `MODE` 환경변수로 전환하며 **코어 코드는 동일**. Redis 큐로 연결. **설정: `bash setup-relay.sh` 위자드**(worker 자동전환 + 배포 안내), 배포 골격: `Dockerfile`/`fly.toml`.
 
 ### 업그레이드 · 데이터 분리
 
