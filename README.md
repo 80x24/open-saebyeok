@@ -19,12 +19,12 @@
 
 Claude Code 세션에서 이렇게 말하면 됩니다:
 
-> "github.com/<your>/open-saebyeok 를 클론해서 `install.sh` 를 실행해줘."
+> "github.com/80x24/open-saebyeok 를 클론해서 `install.sh` 를 실행해줘."
 
 또는 수동으로:
 
 ```bash
-git clone https://github.com/<your>/open-saebyeok ~/.claude/open-saebyeok
+git clone https://github.com/80x24/open-saebyeok ~/.claude/open-saebyeok
 cd ~/.claude/open-saebyeok
 ./install.sh                  # ~/.claude 에 골격 배치 + 봇 의존성 설치 (기존 파일 보존)
 cp .env.example .env          # 채널 토큰 입력
@@ -41,7 +41,7 @@ cd bot && ./run.sh
 
 ## 채널 전환
 
-`.env` 에서 한 줄:
+`.env` 에서 한 줄 바꾸고 봇을 재시작(`./run.sh`)하면 됩니다. (`CHANNEL`은 봇 시작 시 1회 읽습니다)
 
 ```bash
 CHANNEL=telegram   # 또는 slack
