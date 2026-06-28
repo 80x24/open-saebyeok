@@ -13,6 +13,7 @@
 - 🧠 **기억한다** — 대화가 끊겨도 `memory/` 의 마크다운으로 맥락을 이어갑니다.
 - 🪪 **인격이 있다** — `identity/SOUL.md` 로 정의된 한 존재로 동작합니다. 첫 실행 때 **이름부터 정합니다.**
 - 🔌 **채널 교체** — 텔레그램/슬랙을 어댑터 한 파일로 갈아끼웁니다.
+- 🌱 **스스로 자란다(안전하게)** — 하트비트·스킬·Curator로 compounding하되, 스킬은 사용자 승인이 있어야 활성화되고 정리는 삭제 없이 archive로만.
 
 ## 빠른 시작 (Claude Code 네이티브)
 
@@ -68,12 +69,23 @@ open-saebyeok/
 
 `claude -p` 는 구독 OAuth 로 인증되면 **구독 quota 안에서** 돕니다. `ANTHROPIC_API_KEY` 가 환경에 있으면 그게 우선해 **종량제로 과금**되므로, 봇은 spawn 시 자동으로 제거합니다.
 
+## Hermes 5기둥 대비
+
+| 기둥 | open-saebyeok |
+|---|---|
+| **Soul** (정체성) | ✅ SOUL 템플릿 + 첫 실행 이름 온보딩 |
+| **Memory** (기억) | ✅ 마크다운 3계층 (active/semantic/archive) |
+| **Crons** (자율 루틴) | ✅ 하트비트 (기본 OFF, `HEARTBEAT_CRON`) |
+| **Skills** (스킬 자동화) | ✅ 승인 게이트 (`pending` → 사용자 승인 → `active`) |
+| **Self-improvement** | ✅ Curator (오래된 기억·스킬을 비파괴 archive) |
+
+**차별점:** Hermes는 자동으로 쌓여 drift(검증 안 된 자기개선) 위험이 있습니다. open-saebyeok은 **승인 게이트 + 비파괴 정리**로 *"compounding하되 폭주하지 않게"* 만듭니다.
+
 ## 로드맵
 
-- [ ] 슬랙 어댑터 실사용 검증
-- [ ] 하트비트 스케줄러(croner) 연결
+- [ ] 슬랙 어댑터 실사용 검증 (e2e)
 - [ ] 음성(STT/TTS)·이미지 첨부
-- [ ] 메모리 Curator (미사용 기억 자동 archive)
+- [ ] 스킬 사용 telemetry 기반 Curator (현재는 파일 수정시각 기준)
 
 ## 라이선스
 

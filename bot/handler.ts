@@ -1,6 +1,7 @@
 // 메시지 핸들러 — 채널/엔진과 분리된 순수 흐름 (의존성 주입으로 테스트 가능)
 import type { IncomingMessage, ReplyHandle } from './channels/channel'
 import { withBootstrap } from './bootstrap'
+import { handleSkillCommand } from './skills'
 
 export interface HandlerDeps {
   claudeHome: string
@@ -18,6 +19,11 @@ export function createMessageHandler(deps: HandlerDeps) {
 
     if (text === '/cancel') { deps.cancel(); await reply.final('취소했어요.'); return }
     if (text === '/clear') { deps.clear(); await reply.final('세션을 초기화했어요.'); return }
+
+    // /skill 명령 — 스킬 승인 게이트 (busy 와 무관하게 처리)
+    const skillReply = handleSkillCommand(deps.claudeHome, text)
+    if (skillReply !== null) { await reply.final(skillReply); return }
+
     if (deps.isBusy()) { await reply.final('아직 이전 응답을 처리 중이에요. 잠시만요.'); return }
 
     const prompt = withBootstrap(deps.claudeHome, text)

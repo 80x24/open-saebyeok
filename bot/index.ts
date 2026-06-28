@@ -8,6 +8,7 @@ import { homedir } from 'os'
 import { chatStreamWithRetry, cancelStream, clearSession, isBusy } from './claude'
 import { createMessageHandler } from './handler'
 import { needsBootstrap } from './bootstrap'
+import { startHeartbeat } from './heartbeat'
 import type { Channel } from './channels/channel'
 
 const CLAUDE_HOME = process.env.CLAUDE_HOME || join(homedir(), '.claude')
@@ -36,6 +37,14 @@ const main = async () => {
     chat: chatStreamWithRetry,
     cancel: cancelStream,
     clear: clearSession,
+    isBusy,
+  })
+
+  // 하트비트 (기본 OFF — HEARTBEAT_CRON 설정 시에만)
+  startHeartbeat(process.env.HEARTBEAT_CRON || '', {
+    claudeHome: CLAUDE_HOME,
+    chat: chatStreamWithRetry,
+    notify: channel.notify.bind(channel),
     isBusy,
   })
 
