@@ -3,6 +3,13 @@
 cd "$(dirname "$0")"
 unset CLAUDECODE
 
+# bun 이 PATH 에 없으면 기본 설치 위치를 추가 (install.sh 가 방금 깔았는데 셸 rc 가 아직 로드 안 된 경우 대비)
+command -v bun >/dev/null 2>&1 || export PATH="$HOME/.bun/bin:$PATH"
+if ! command -v bun >/dev/null 2>&1; then
+  echo "✗ bun 을 찾을 수 없습니다. 새 터미널을 열거나 'source ~/.zshrc' 후 다시 실행하세요. (설치: https://bun.sh)"
+  exit 1
+fi
+
 BOT_DIR="$(pwd)"
 LOCKFILE="/tmp/open-saebyeok.lock"
 

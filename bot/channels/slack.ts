@@ -11,7 +11,12 @@ export async function createSlackChannel(): Promise<Channel> {
     console.warn('[slack] ⚠️ SLACK_OWNER_ID 미설정 — 소유자가 정해질 때까지 메시지를 처리하지 않습니다(fail-closed).')
   }
 
-  const { App } = await import('@slack/bolt')
+  let App: any
+  try {
+    ({ App } = await import('@slack/bolt'))
+  } catch {
+    throw new Error('슬랙 SDK가 설치돼 있지 않습니다. 설치하세요: cd bot && bun add @slack/bolt')
+  }
   const app = new App({ token: botToken, appToken, socketMode: true })
 
   const notify = async (text: string) => {

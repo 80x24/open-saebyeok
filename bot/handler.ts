@@ -42,7 +42,11 @@ export function createMessageHandler(deps: HandlerDeps) {
       })
       await reply.final(response)
     } catch (err: any) {
-      await reply.final(`⚠️ 오류: ${(err.message || String(err)).slice(0, 300)}`)
+      const m = err.message || String(err)
+      const hint = /login|auth|credit|limit|access|인증/i.test(m)
+        ? '\n\n💡 구독 로그인이 필요하거나 사용량 한도일 수 있어요. 터미널에서 `claude` 로그인 상태를 확인해보세요.'
+        : ''
+      await reply.final(`⚠️ 오류: ${m.slice(0, 300)}${hint}`)
     }
   }
 }

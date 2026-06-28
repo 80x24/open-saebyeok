@@ -26,16 +26,33 @@
 6. 값을 `bot/.env` 에 기록: `CHANNEL=slack`, `SLACK_BOT_TOKEN=xoxb-...`, `SLACK_APP_TOKEN=xapp-...`, `SLACK_OWNER_ID=...`
 
 ## 3. 기록 방법
-`.claude/` 가 아니라 **`bot/.env`** 에 씁니다. Write/Edit 가 막히면 Bash 로 (기존 .env 가 있으면 해당 줄만 갱신):
+토큰은 `<설치경로>/bot/.env` 에 씁니다 (`.claude/` 가 아님).
+
+- **처음 설치**(빈 .env)면 아래처럼 전체를 써도 됩니다.
+- **이미 설정이 있으면**(채널 전환 등) 기존 값을 보존하도록 **해당 줄만** 갱신하세요. `HEARTBEAT_CRON` 같은 다른 설정을 날리지 않게.
+
+Write/Edit 가 막히면 Bash 로:
 
 ```bash
 cd <설치경로>/bot
+
+# 텔레그램이면
 cat > .env <<'EOF'
 CHANNEL=telegram
 TELEGRAM_BOT_TOKEN=...
 TELEGRAM_CHAT_ID=...
 EOF
+
+# 슬랙이면
+cat > .env <<'EOF'
+CHANNEL=slack
+SLACK_BOT_TOKEN=xoxb-...
+SLACK_APP_TOKEN=xapp-...
+SLACK_OWNER_ID=...
+EOF
 ```
+
+> 일부만 바꿀 땐 전체 덮어쓰기 대신 해당 줄만 수정하세요 (기존 `.env` 를 읽어 그 줄만 교체).
 
 ## 4. 봇 기동
 - 처음이면: `cd bot && ./run.sh`
