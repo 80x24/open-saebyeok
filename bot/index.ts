@@ -1,7 +1,8 @@
 // 진입점
-// 1) CHANNEL 환경변수로 메신저 어댑터를 고른다 (미설정이면 셋업 위자드로 유도)
-// 2) 아직 이름이 없으면(부트스트랩 미완료) 최우선으로 이름부터 묻는다
-// 3) 메시지를 claude -p 로 흘려보내고 스트리밍 응답을 돌려준다
+// MODE 로 실행 형태를 고른다 (입구만 다르고 코어 흐름·정체성/기억은 동일):
+//   standalone (기본) — 한 대에서 메신저 입구+처리 모두 (로컬 1대)
+//   worker            — Redis 큐를 듣고 처리만 (로컬, 데이터 보유). relay 와 짝
+//   relay             — 메신저 입구만 쥐고 worker 에 위임 (외부 상시 서버, 데이터 없음)
 
 import { chatStreamWithRetry, cancelStream, clearSession, isBusy } from './claude'
 import { createMessageHandler } from './handler'
@@ -10,9 +11,47 @@ import { startHeartbeat } from './heartbeat'
 import { loadChannel } from './channels/load'
 import { APP_NAME, DATA_DIR } from './config'
 
+const MODE = (process.env.MODE || 'standalone').toLowerCase()
+
+// 코어 메시지 핸들러 (standalone·worker 공용)
+const buildHandler = () => createMessageHandler({
+  claudeHome: DATA_DIR,
+  chat: chatStreamWithRetry,
+  cancel: cancelStream,
+  clear: clearSession,
+  isBusy,
+  restart: () => { setTimeout(() => process.exit(0), 500) }, // run.sh 가 다시 띄운다
+})
+
+const startHb = (notify: (t: string) => Promise<void>) =>
+  startHeartbeat(process.env.HEARTBEAT_CRON || '', {
+    claudeHome: DATA_DIR, chat: chatStreamWithRetry, notify, isBusy,
+  })
+
 const main = async () => {
+  // worker — Redis 큐를 듣고 코어 handler 로 처리 (정체성·기억은 이 로컬에)
+  if (MODE === 'worker') {
+    const { createRedisWorkerChannel } = await import('./channels/redis')
+    const channel = createRedisWorkerChannel()
+    startHb(channel.notify.bind(channel))
+    console.log(`[${APP_NAME}] MODE=worker DATA_DIR=${DATA_DIR}`)
+    await channel.start(buildHandler())
+    return
+  }
+
+  // relay — 메신저 입구만 쥐고 worker 에 위임 (외부 상시 서버)
+  if (MODE === 'relay') {
+    if (!process.env.REDIS_URL) throw new Error('relay 모드는 REDIS_URL 가 필요합니다')
+    const channel = await loadChannel(process.env.CHANNEL || '')
+    const { createRelayHandler } = await import('./relay')
+    console.log(`[${APP_NAME}] MODE=relay channel=${channel.name}`)
+    await channel.start(createRelayHandler(channel, process.env.REDIS_URL))
+    return
+  }
+
+  // standalone (기본) — 한 대에서 입구+처리 모두
   const channel = await loadChannel(process.env.CHANNEL || '')
-  console.log(`[${APP_NAME}] channel=${channel.name} DATA_DIR=${DATA_DIR}`)
+  console.log(`[${APP_NAME}] MODE=standalone channel=${channel.name} DATA_DIR=${DATA_DIR}`)
 
   if (needsBootstrap(DATA_DIR)) {
     await channel.notify(
@@ -22,24 +61,8 @@ const main = async () => {
     )
   }
 
-  const handler = createMessageHandler({
-    claudeHome: DATA_DIR,
-    chat: chatStreamWithRetry,
-    cancel: cancelStream,
-    clear: clearSession,
-    isBusy,
-    restart: () => { setTimeout(() => process.exit(0), 500) }, // run.sh 가 다시 띄운다
-  })
-
-  // 하트비트 (기본 OFF — HEARTBEAT_CRON 설정 시에만)
-  startHeartbeat(process.env.HEARTBEAT_CRON || '', {
-    claudeHome: DATA_DIR,
-    chat: chatStreamWithRetry,
-    notify: channel.notify.bind(channel),
-    isBusy,
-  })
-
-  await channel.start(handler)
+  startHb(channel.notify.bind(channel))
+  await channel.start(buildHandler())
 }
 
 main().catch((e) => { console.error(e); process.exit(1) })

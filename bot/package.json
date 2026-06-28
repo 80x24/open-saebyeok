@@ -10,7 +10,8 @@
   "dependencies": {
     "@grammyjs/auto-retry": "^2.0.2",
     "croner": "^10.0.1",
-    "grammy": "^1.35.0"
+    "grammy": "^1.35.0",
+    "ioredis": "^5.11.1"
   },
   "optionalDependencies": {
     "@slack/bolt": "^4.2.0"

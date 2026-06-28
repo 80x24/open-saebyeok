@@ -102,16 +102,30 @@
 ```
 mure/
 ├─ install.sh            # ~/.mure 배치 + 인증 점검 + bun 자동설치
+├─ upgrade.sh            # 코드만 갱신 (데이터 보존)
+├─ migrate.sh            # 레거시 ~/.claude → ~/.mure 비파괴 이전
+├─ Dockerfile · fly.toml # relay 배포 골격 (외부 상시 서버)
 ├─ bot/
-│  ├─ index.ts           # 채널 선택 + 온보딩 + 메시지 루프
+│  ├─ index.ts           # MODE 분기(standalone/worker/relay) + 메시지 루프
+│  ├─ config.ts          # 이름·데이터경로 단일 출처 (APP_NAME / DATA_DIR) ★
 │  ├─ claude.ts          # claude -p spawn (구독 OAuth, API키 차단) ★
-│  ├─ channels/          # channel.ts(인터페이스) + telegram.ts + slack.ts + owner.ts
+│  ├─ relay.ts           # relay 위임 (worker 에 큐 전달 + deferred)
+│  ├─ channels/          # channel.ts(인터페이스) + telegram · slack · redis(worker) + owner
 │  ├─ heartbeat.ts · skills.ts · curator.ts · bootstrap.ts · handler.ts
 │  └─ run.sh             # 재시작 래퍼
 ├─ identity/             # SOUL/IDENTITY/CLAUDE .template + SETUP.md + BOOTSTRAP.md
 ├─ memory/               # active / semantic / archive (빈 구조)
 └─ HEARTBEAT.template.md # 자율 루틴 (선택)
 ```
+
+### 실행 모드
+
+- **standalone** (기본): 이 컴퓨터에서 메신저 입구+처리 모두.
+- **relay + worker**: 외출 중 노트북을 꺼도 작동. 외부 상시 서버(relay)가 메신저를 받고, 로컬(worker)이 켜져 있으면 위임 / 꺼져 있으면 "나중에 처리"(켜지면 이어서 답). `MODE` 환경변수로 전환하며 **코어 코드는 동일**. Redis 큐로 연결. (설정: `identity/SETUP.md` 의 relay 섹션, 배포: `Dockerfile`/`fly.toml`)
+
+### 업그레이드 · 데이터 분리
+
+정체성·기억은 코드와 분리된 전용 폴더 `~/.mure/` 에 있습니다(Claude Code 본체 `~/.claude` 와 섞이지 않음). 그래서 `./upgrade.sh` 는 **코드만 갱신하고 데이터는 그대로 보존**합니다. 예전에 `~/.claude` 에 설치했다면 `./migrate.sh` 로 비파괴 이전하세요.
 
 ### 비용 구조
 

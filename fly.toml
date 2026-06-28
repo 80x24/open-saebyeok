@@ -1,0 +1,26 @@
+# relay 배포 골격 (Fly). 실제 앱 이름은 `fly launch` 시 정하세요.
+# relay 는 텔레그램 long-poll / 슬랙 Socket Mode 라 인바운드 포트가 필요 없습니다(outbound only).
+# 따라서 [http_service] 없이 항상 1대를 유지합니다.
+
+app = "mure-relay"            # 배포 시 본인 앱 이름으로
+primary_region = "nrt"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  MODE = "relay"
+  # CHANNEL = "slack"         # 또는 telegram
+  # RELAY_TIMEOUT_SEC = "8"
+
+# secret 으로 주입(코드/파일에 두지 말 것):
+#   fly secrets set REDIS_URL=redis://... SLACK_BOT_TOKEN=... SLACK_APP_TOKEN=... SLACK_OWNER_ID=...
+#   (텔레그램이면 TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
+
+# 인바운드 트래픽이 없으므로 auto-stop 하지 않도록 1대 고정.
+[processes]
+  app = "bun run bot/index.ts"
