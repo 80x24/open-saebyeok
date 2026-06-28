@@ -1,97 +1,123 @@
 # open-saebyeok
 
-**메신저로 대화하는, 나만의 이름을 가진 AI 에이전트.**
-`claude -p`(파이프 모드)를 **구독 인증**으로 감싸서, Claude 구독료 외에 **추가 비용이 들지 않습니다.**
+**메신저로 대화하는, 이름을 가진 나만의 AI 친구.**
+텔레그램이나 슬랙으로 말을 걸면 답해주고, 나를 기억하고, 시키지 않아도 알아서 챙겨줘요.
 
-> 새벽네시(saebyeoknesi) 시스템에서 파생된 오픈소스 골격입니다. 정체성·기억·메신저 채널을 갖춘 개인 에이전트를, 무거운 DB 없이 **마크다운 + 구독**으로 굴립니다.
+> 🔧 새벽네시(saebyeoknesi) 시스템에서 갈라져 나온 오픈소스입니다. AI의 정체성·기억·메신저 연결을, 무거운 데이터베이스 없이 글(마크다운) 파일과 Claude 구독만으로 굴립니다.
 
 ---
 
-## 왜?
+## 뭐가 좋아요?
 
-- 💸 **구독으로 공짜** — `ANTHROPIC_API_KEY`를 차단하고 Claude 구독 OAuth로만 돌립니다. 종량제 API 봇은 always-on이면 월 수백 달러가 나가지만, 이건 **구독료만**.
-- 🧠 **기억한다** — 대화가 끊겨도 `memory/` 의 마크다운으로 맥락을 이어갑니다.
-- 🪪 **인격이 있다** — `identity/SOUL.md` 로 정의된 한 존재로 동작합니다. 첫 실행 때 **이름부터 정합니다.**
-- 🔌 **채널 교체** — 텔레그램/슬랙을 어댑터 한 파일로 갈아끼웁니다.
-- 🌱 **스스로 자란다(안전하게)** — 하트비트·스킬·Curator로 compounding하되, 스킬은 사용자 승인이 있어야 활성화되고 정리는 삭제 없이 archive로만.
+**💸 돈이 (거의) 안 들어요**
+이미 내고 있는 Claude 구독료 말고는 추가 요금이 없어요. 보통 이런 AI 봇은 쓸수록 사용료가 붙는데, 이건 구독 안에서 돌아가요.
 
-## 빠른 시작
+> 🔧 `claude -p`(파이프 모드)를 구독 인증(OAuth)으로 돌려 **구독 할당량 안에서** 동작합니다. 종량제 API 키(`ANTHROPIC_API_KEY`)가 환경에 있으면 그쪽으로 과금되므로, 봇이 실행 시 자동으로 차단합니다.
 
-### 0. Claude Code 설치 (이미 있으면 건너뛰기)
+**🧠 나를 기억해요**
+대화가 끊겨도 어제 한 얘기를 잊지 않아요. 중요한 건 글로 적어두고 다시 읽거든요.
 
-필요한 건 **Claude Code(`claude` CLI) + 구독(Pro/Max) 로그인** 하나뿐입니다.
-봇 런타임(Bun)은 `install.sh` 가 없으면 **자동으로 설치**하므로 따로 신경 쓸 필요 없습니다.
+> 🔧 `memory/` 폴더의 마크다운 3계층(active·semantic·archive)으로 맥락을 유지합니다.
 
-```bash
-# macOS / Linux
-curl -fsSL https://claude.ai/install.sh | bash      # 또는: brew install --cask claude-code
-claude --version                                     # 설치 확인
-claude                                                # 첫 실행 → 브라우저에서 구독 OAuth 로그인
-```
+**🪪 이름과 성격이 있어요**
+설치하면 가장 먼저 "저를 뭐라고 부를까요?"라고 물어봐요. 이름과 성격을 정하면 그 모습으로 쭉 함께해요.
 
-가이드: [Claude Code 빠른 시작](https://code.claude.com/docs/en/quickstart.md) · [설치 문제 해결](https://code.claude.com/docs/en/troubleshoot-install.md)
+> 🔧 정체성은 `identity/SOUL.md` 가 정의하며, 첫 실행 시 부트스트랩으로 채워집니다.
 
-### 1. open-saebyeok 설치
+**🌱 스스로 도와요 (단, 안전하게)**
+시간이 지나며 더 똑똑해지고, 반복되는 일을 스스로 정리해요. 다만 *함부로*는 안 해요 — 새 기능은 **내가 허락해야** 켜지고, 정리할 때도 지우지 않고 **보관만** 해요.
 
-Claude Code 세션에서 이렇게 말하면 됩니다:
+> 🔧 하트비트(주기 실행)·스킬(승인 게이트)·Curator(비파괴 archive). Hermes의 self-improving을 따르되, 검증 없는 자기개선(drift)을 승인 구조로 막습니다.
 
-> "github.com/80x24/open-saebyeok 를 클론해서 `install.sh` 를 실행해줘."
+---
 
-또는 수동으로:
+## 시작하기
 
-```bash
-git clone https://github.com/80x24/open-saebyeok ~/.claude/open-saebyeok
-cd ~/.claude/open-saebyeok && ./install.sh
-# 그 다음 Claude Code 에서 "설정 시작" → 채널·토큰을 대화로 설정 → 봇 기동
-```
+**준비물은 딱 하나예요 — Claude Code.**
+(Claude Pro나 Max 구독으로 로그인돼 있으면 돼요.)
 
-## 첫 실행 — 대화형 온보딩
+> 🔧 Claude Code 설치 (macOS / Linux):
+> ```bash
+> curl -fsSL https://claude.ai/install.sh | bash    # 또는: brew install --cask claude-code
+> claude                                             # 첫 실행 → 브라우저에서 구독 로그인
+> ```
+> 가이드: [Claude Code 빠른 시작](https://code.claude.com/docs/en/quickstart.md) · [설치 문제 해결](https://code.claude.com/docs/en/troubleshoot-install.md)
 
-설치 후 Claude Code 에서 **"설정 시작"** 이라고 하면, 에이전트가 위자드로 끝까지 안내합니다:
+준비됐으면, **Claude Code를 열고 이렇게 말하세요:**
 
-1. **채널 선택 & 토큰** — 텔레그램/슬랙 중 고르고, 토큰 발급법을 단계별로 안내받아 `.env` 가 채워집니다. (`identity/SETUP.md`)
-2. **봇 기동** — `cd bot && ./run.sh`
-3. **이름 정하기** — 메신저로 첫 메시지를 보내면, 에이전트가 가장 먼저 **"저를 뭐라고 부를까요?"** 라고 물어봅니다. (`identity/BOOTSTRAP.md`)
+> 💬 "github.com/80x24/open-saebyeok 설치해줘"
 
-이름 대신 다른 걸 먼저 물어봐도 됩니다 — 답한 뒤 자연스럽게 돌아옵니다.
+그러면 알아서 다 받아서 설치해요. 봇이 돌아가는 데 필요한 다른 프로그램도 **알아서 깔아주니** 신경 쓸 게 없어요.
 
-## 명령어
+> 🔧 직접 설치하려면:
+> ```bash
+> git clone https://github.com/80x24/open-saebyeok ~/.claude/open-saebyeok
+> cd ~/.claude/open-saebyeok && ./install.sh
+> ```
+> Bun 런타임이 없으면 `install.sh` 가 자동으로 설치합니다.
 
-- `/restart` — 봇 재시작 (설정 변경·업데이트 적용)
-- `/clear` — 대화 세션 초기화 · `/cancel` — 진행 중 응답 취소
-- `/skill list` · `/skill approve <이름>` · `/skill reject <이름>` — 스킬 승인 게이트
+---
 
-## 채널 전환
+## 첫 대화 — 설정도 말로 끝나요
 
-`.env` 에서 한 줄 바꾸고 봇을 재시작하면 됩니다. 재시작은 봇에게 **`/restart`** 라고 해도 됩니다. (`CHANNEL`은 봇 시작 시 1회 읽습니다)
+설치한 뒤 Claude Code에 **"설정 시작"**이라고 하면, 끝까지 대화로 안내해줘요:
 
-```bash
-CHANNEL=telegram   # 또는 slack
-```
+1. **어디서 대화할지** — 텔레그램과 슬랙 중에 골라요. 연결에 필요한 "키" 받는 법도 하나씩 알려줘요.
+2. **봇 켜기** — 준비되면 봇을 띄워요.
+3. **이름 짓기** — 메신저로 첫 메시지를 보내면, 가장 먼저 "저를 뭐라고 부를까요?"라고 물어봐요.
 
-- **텔레그램**: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
-- **슬랙**: `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`(Socket Mode), `SLACK_OWNER_ID` + `bun add @slack/bolt`
+어려운 용어가 나와도 걱정 마세요 — 막히면 그 자리에서 도와줘요. 이름 대신 딴 걸 먼저 물어봐도 되고요.
 
-## 구조
+> 🔧 위자드 순서: `identity/SETUP.md`(채널·토큰) → `identity/BOOTSTRAP.md`(이름). 토큰은 `bot/.env` 에 기록됩니다.
+
+---
+
+## 봇에게 할 수 있는 말
+
+평소엔 그냥 편하게 대화하면 돼요. 가끔 이런 명령도 써요:
+
+- `/restart` — 봇 다시 시작 (설정을 바꿨을 때)
+- `/clear` — 지금까지의 대화 기억 비우기
+- `/cancel` — 답하는 도중에 멈추기
+- `/skill list` — 봇이 배운 기능 목록 보기
+
+> 🔧 `/skill approve <이름>` · `/skill reject <이름>` — 봇이 제안한 스킬을 승인/거절합니다(거절은 삭제 아닌 archive 이동).
+
+## 대화 장소 바꾸기 (텔레그램 ↔ 슬랙)
+
+봇에게 **`/restart`** 라고 하면 바뀐 설정이 적용돼요.
+
+> 🔧 `bot/.env` 의 `CHANNEL=telegram|slack` 한 줄을 바꾸고 재시작(봇 시작 시 1회 읽음).
+> - 텔레그램: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`
+> - 슬랙: `SLACK_BOT_TOKEN`, `SLACK_APP_TOKEN`(Socket Mode), `SLACK_OWNER_ID` (+ `bun add @slack/bolt`)
+
+---
+
+# 기술적인 이야기 (안 읽어도 돼요)
+
+여기부터는 개발자를 위한 내용이에요.
+
+### 폴더 구조
 
 ```
 open-saebyeok/
-├─ install.sh            # ~/.claude 배치 + 인증 점검
+├─ install.sh            # ~/.claude 배치 + 인증 점검 + bun 자동설치
 ├─ bot/
 │  ├─ index.ts           # 채널 선택 + 온보딩 + 메시지 루프
 │  ├─ claude.ts          # claude -p spawn (구독 OAuth, API키 차단) ★
-│  ├─ channels/          # channel.ts(인터페이스) + telegram.ts + slack.ts
+│  ├─ channels/          # channel.ts(인터페이스) + telegram.ts + slack.ts + owner.ts
+│  ├─ heartbeat.ts · skills.ts · curator.ts · bootstrap.ts · handler.ts
 │  └─ run.sh             # 재시작 래퍼
-├─ identity/             # SOUL/IDENTITY/CLAUDE .template + BOOTSTRAP.md
+├─ identity/             # SOUL/IDENTITY/CLAUDE .template + SETUP.md + BOOTSTRAP.md
 ├─ memory/               # active / semantic / archive (빈 구조)
 └─ HEARTBEAT.template.md # 자율 루틴 (선택)
 ```
 
-## 비용 — 한 줄
+### 비용 구조
 
 `claude -p` 는 구독 OAuth 로 인증되면 **구독 quota 안에서** 돕니다. `ANTHROPIC_API_KEY` 가 환경에 있으면 그게 우선해 **종량제로 과금**되므로, 봇은 spawn 시 자동으로 제거합니다.
 
-## Hermes 5기둥 대비
+### Hermes 5기둥 대비
 
 | 기둥 | open-saebyeok |
 |---|---|
@@ -103,7 +129,11 @@ open-saebyeok/
 
 **차별점:** Hermes는 자동으로 쌓여 drift(검증 안 된 자기개선) 위험이 있습니다. open-saebyeok은 **승인 게이트 + 비파괴 정리**로 *"compounding하되 폭주하지 않게"* 만듭니다.
 
-## 로드맵
+### 보안
+
+소유자(`TELEGRAM_CHAT_ID` / `SLACK_OWNER_ID`)가 설정되지 않으면 **아무 메시지도 처리하지 않습니다(fail-closed)**. 첫 접촉자에게는 본인 id를 안내해 `.env` 에 넣도록 합니다. (봇은 `--dangerously-skip-permissions` 로 claude 를 띄우므로 소유자 게이트가 중요)
+
+### 로드맵
 
 - [ ] 슬랙 어댑터 실사용 검증 (e2e)
 - [ ] 음성(STT/TTS)·이미지 첨부
