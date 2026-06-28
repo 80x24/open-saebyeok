@@ -3,6 +3,9 @@
 아직 메신저 채널이 설정되지 않았습니다 (`bot/.env` 의 `CHANNEL` 이 비어 있음).
 사용자를 아래 순서로 **대화로** 안내하세요. 한 번에 다 묻지 말고, 한 단계씩 친절하게.
 
+> **봇 설치 경로**: `cat ~/.claude/.open-saebyeok-path` 로 확인하세요 (보통 `~/.claude/open-saebyeok`).
+> 아래 `<설치경로>` 는 모두 이 값으로 치환합니다. `bot/.env` 는 `<설치경로>/bot/.env` 입니다.
+
 ## 1. 채널 선택
 "어느 메신저로 대화할까요? **텔레그램**과 **슬랙** 중 고를 수 있어요." 라고 물어보세요.
 
@@ -14,6 +17,7 @@
 3. 두 값을 받아 `bot/.env` 에 기록: `CHANNEL=telegram`, `TELEGRAM_BOT_TOKEN=...`, `TELEGRAM_CHAT_ID=...`
 
 ### 슬랙을 고르면
+0. 슬랙 SDK 설치: `cd <설치경로>/bot && bun add @slack/bolt`
 1. https://api.slack.com/apps → **Create New App** → From scratch
 2. **Socket Mode** 켜기 → App-Level Token(`xapp-...`) 생성 (scope: `connections:write`)
 3. **OAuth & Permissions** → Bot Token Scopes 에 `chat:write`, `im:history`, `im:read`, `im:write` 추가 → 워크스페이스 설치 → Bot Token(`xoxb-...`)

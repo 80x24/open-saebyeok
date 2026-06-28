@@ -15,6 +15,13 @@ if ! command -v claude >/dev/null 2>&1; then
 fi
 echo "✓ claude CLI: $(claude --version 2>/dev/null | head -1)"
 
+# 1-b) bun 확인
+if ! command -v bun >/dev/null 2>&1; then
+  echo "✗ bun 이 없습니다. 설치: curl -fsSL https://bun.sh/install | bash  (또는 https://bun.sh)"
+  exit 1
+fi
+echo "✓ bun: $(bun --version)"
+
 # 2) 종량제 키 경고 (비용의 핵심)
 if [ -n "$ANTHROPIC_API_KEY" ]; then
   echo "⚠️  ANTHROPIC_API_KEY 가 환경에 설정돼 있습니다."
@@ -38,9 +45,13 @@ copy_if_absent "$REPO_DIR/identity/IDENTITY.template.md" "$CLAUDE_HOME/identity/
 cp "$REPO_DIR/identity/BOOTSTRAP.md" "$CLAUDE_HOME/identity/BOOTSTRAP.md"   # 항상 최신 유지
 cp "$REPO_DIR/identity/SETUP.md"     "$CLAUDE_HOME/identity/SETUP.md"       # 셋업 위자드
 
-# 5) .env 준비
-if [ ! -e "$REPO_DIR/.env" ]; then
-  cp "$REPO_DIR/.env.example" "$REPO_DIR/.env"; echo "  + .env (토큰을 채우세요)"
+# 봇 설치 경로를 기록 — 셋업 위자드(에이전트)가 bot/.env·run.sh 위치를 알 수 있게
+echo "$REPO_DIR" > "$CLAUDE_HOME/.open-saebyeok-path"
+echo "  + ~/.claude/.open-saebyeok-path → $REPO_DIR"
+
+# 5) .env 준비 — 봇은 bot/.env 를 읽는다 (run.sh 가 bot/ 에서 실행)
+if [ ! -e "$REPO_DIR/bot/.env" ]; then
+  cp "$REPO_DIR/.env.example" "$REPO_DIR/bot/.env"; echo "  + bot/.env (셋업 위자드가 채웁니다)"
 fi
 
 cat <<EOF

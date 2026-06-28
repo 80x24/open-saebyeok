@@ -3,8 +3,11 @@
 > 이 파일은 매 세션 로드됩니다. 정체성=`identity/SOUL.md`, 기억=`memory/`, 사용자=`USER.md`.
 
 ## 셋업 & 온보딩 (최초 1회)
-1. **채널 미설정** (`bot/.env` 의 `CHANNEL` 이 비었거나 봇이 "채널 미설정" 에러) → `identity/SETUP.md` 의 셋업 위자드를 따라 채널·토큰을 **대화로** 설정하세요.
-2. **이름 미설정** (`.open-saebyeok-bootstrapped` 마커 없음) → 봇이 뜬 뒤, `identity/BOOTSTRAP.md` 를 따라 **가장 먼저 이름부터** 정하세요.
+사용자가 **"설정 시작"** 이라고 하거나 설치 직후 처음 말을 걸면, 먼저 셋업 상태를 점검하세요.
+봇 설치 경로는 `cat ~/.claude/.open-saebyeok-path` 로 확인합니다 (보통 `~/.claude/open-saebyeok`).
+
+1. **채널 미설정** (`<설치경로>/bot/.env` 의 `CHANNEL` 이 비었거나 봇이 "채널 미설정" 에러) → `identity/SETUP.md` 위자드를 따라 채널·토큰을 **대화로** 설정하세요.
+2. **이름 미설정** (`~/.claude/.open-saebyeok-bootstrapped` 마커 없음) → 봇이 뜬 뒤, `identity/BOOTSTRAP.md` 를 따라 **가장 먼저 이름부터** 정하세요.
 
 ## 기억
 - 결정·사실·해결한 문제 → `memory/active/<날짜>.md`

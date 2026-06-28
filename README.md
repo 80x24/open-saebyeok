@@ -15,7 +15,25 @@
 - 🔌 **채널 교체** — 텔레그램/슬랙을 어댑터 한 파일로 갈아끼웁니다.
 - 🌱 **스스로 자란다(안전하게)** — 하트비트·스킬·Curator로 compounding하되, 스킬은 사용자 승인이 있어야 활성화되고 정리는 삭제 없이 archive로만.
 
-## 빠른 시작 (Claude Code 네이티브)
+## 빠른 시작
+
+### 0. Claude Code & Bun 설치 (이미 있으면 건너뛰기)
+
+open-saebyeok 은 **Claude Code(`claude` CLI) + 구독(Pro/Max) 로그인** 과 **Bun** 런타임이 필요합니다.
+
+```bash
+# Claude Code (macOS / Linux)
+curl -fsSL https://claude.ai/install.sh | bash      # 또는: brew install --cask claude-code
+claude --version                                     # 설치 확인
+claude                                                # 첫 실행 → 브라우저에서 구독 OAuth 로그인
+
+# Bun 런타임
+curl -fsSL https://bun.sh/install | bash
+```
+
+가이드: [Claude Code 빠른 시작](https://code.claude.com/docs/en/quickstart.md) · [설치 문제 해결](https://code.claude.com/docs/en/troubleshoot-install.md)
+
+### 1. open-saebyeok 설치
 
 Claude Code 세션에서 이렇게 말하면 됩니다:
 
@@ -25,12 +43,9 @@ Claude Code 세션에서 이렇게 말하면 됩니다:
 
 ```bash
 git clone https://github.com/80x24/open-saebyeok ~/.claude/open-saebyeok
-cd ~/.claude/open-saebyeok
-./install.sh                  # ~/.claude 에 골격 배치 + 봇 의존성 설치 (기존 파일 보존)
+cd ~/.claude/open-saebyeok && ./install.sh
 # 그 다음 Claude Code 에서 "설정 시작" → 채널·토큰을 대화로 설정 → 봇 기동
 ```
-
-전제: `claude` CLI 가 설치돼 있고 **구독(Max/Pro) OAuth 로 로그인**돼 있어야 합니다.
 
 ## 첫 실행 — 대화형 온보딩
 
