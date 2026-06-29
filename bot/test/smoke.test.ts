@@ -5,7 +5,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync, cpSync } from 'fs'
 import { join } from 'path'
 import { tmpdir } from 'os'
 import { needsBootstrap, withBootstrap, markerPath } from '../bootstrap'
-import { createMessageHandler } from '../handler'
+import { createMessageHandler, parseDirectives } from '../handler'
 import { createTelegramChannel } from '../channels/telegram'
 import { createSlackChannel } from '../channels/slack'
 import type { ReplyHandle, IncomingMessage } from '../channels/channel'
@@ -90,8 +90,9 @@ describe('③ 이름 온보딩 흐름 (claude mock)', () => {
     })
     const reply = noopReply()
     await handler({ text: '/restart', userId: 'u1', isOwner: true }, reply)
+    expect(reply.last()).toContain('재시작')          // 안내 메시지 먼저 전송
+    await new Promise((r) => setTimeout(r, 450))       // 재시작은 메시지 전송 보장 후(400ms)
     expect(restarted).toBe(true)
-    expect(reply.last()).toContain('재시작')
   })
   test('/clear 명령 → clear 호출 + 안내', async () => {
     let cleared = false
@@ -170,5 +171,36 @@ describe('⑤ 세션 명령', () => {
     const h = mkh({ chat: async (p: string) => { sent = p; return { response: '', display: '' } } })
     const r = noopReply(); await h({ text: '/compact', userId: 'u1', isOwner: true }, r)
     expect(sent).toBe('/compact'); expect(r.last()).toContain('압축')
+  })
+})
+
+describe('⑥ dual interface (자연어 → 디렉티브) + 세션 헤더', () => {
+  test('parseDirectives: [[do:clear]] 추출 + 본문 제거', () => {
+    const { cleaned, directives } = parseDirectives('기억 비울게요. [[do:clear]]')
+    expect(cleaned).toBe('기억 비울게요.')
+    expect(directives).toEqual([{ name: 'clear', arg: '' }])
+  })
+  test('parseDirectives: arg 포함', () => {
+    const { directives } = parseDirectives('전환할게요 [[do:resume abc123]]')
+    expect(directives[0]).toEqual({ name: 'resume', arg: 'abc123' })
+  })
+  test('자연어 응답의 [[do:clear]] → clear 실행 + 본문에서 디렉티브 제거', async () => {
+    let cleared = false
+    const chat = async () => ({ response: '기억을 비웠어요. [[do:clear]]', display: '' })
+    const h = createMessageHandler({ claudeHome: home, chat, cancel: () => true, clear: () => { cleared = true }, isBusy: () => false })
+    writeFileSync(markerPath(home), '')
+    const r = noopReply()
+    await h({ text: '기억 지워줘', userId: 'u1', isOwner: true }, r)
+    expect(cleared).toBe(true)
+    expect(r.last()).toContain('기억을 비웠어요')
+    expect(r.last()).not.toContain('[[do:')
+  })
+  test('세션 id 헤더가 응답 상단에 표시', async () => {
+    const chat = async () => ({ response: '답변이에요', display: '' })
+    const h = createMessageHandler({ claudeHome: home, chat, cancel: () => true, clear: () => {}, isBusy: () => false, status: () => ({ id: 'sess1234xxxx', active: true, busy: false }) })
+    writeFileSync(markerPath(home), '')
+    const r = noopReply()
+    await h({ text: '안녕', userId: 'u1', isOwner: true }, r)
+    expect(r.last()).toContain('#sess1234')
   })
 })
