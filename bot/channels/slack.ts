@@ -30,23 +30,28 @@ export async function createSlackChannel(): Promise<Channel> {
     notify,
     async start(handler) {
       app.message(async ({ message, say, client }: any) => {
-        if (message.subtype) return // 봇 메시지·편집 등 무시 (echo 루프 방지)
-        const { allowed, ownerSet } = resolveOwner(process.env.SLACK_OWNER_ID, message.user)
-        if (!ownerSet) {
-          await say(`🔒 아직 소유자가 설정되지 않았어요. 당신의 user id: ${message.user}\nSLACK_OWNER_ID 에 넣고 /restart 해주세요.`)
-          return
-        }
-        if (!allowed) return
+        try {
+          if (message.subtype) return // 봇 메시지·편집 등 무시 (echo 루프 방지)
+          const { allowed, ownerSet } = resolveOwner(process.env.SLACK_OWNER_ID, message.user)
+          if (!ownerSet) {
+            await say(`🔒 아직 소유자가 설정되지 않았어요. 당신의 user id: ${message.user}\nSLACK_OWNER_ID 에 넣고 /restart 해주세요.`)
+            return
+          }
+          if (!allowed) return
 
-        let ts: string | null = null
-        const ensure = async (text: string) => {
-          const t = text.slice(-3900) || '...' // telegram 과 통일 — 스트리밍 중 최신(뒤쪽) 표시
-          if (!ts) { const r: any = await say(t); ts = r.ts }
-          else { try { await client.chat.update({ channel: message.channel, ts, text: t }) } catch {} }
+          let ts: string | null = null
+          const ensure = async (text: string) => {
+            const t = text.slice(-3900) || '...' // telegram 과 통일 — 스트리밍 중 최신(뒤쪽) 표시
+            if (!ts) { try { const r: any = await say(t); ts = r.ts } catch {} }
+            else { try { await client.chat.update({ channel: message.channel, ts, text: t }) } catch {} }
+          }
+          const reply: ReplyHandle = { update: ensure, final: ensure }
+          const msg: IncomingMessage = { text: message.text || '', userId: message.user, isOwner: true }
+          await handler(msg, reply)
+        } catch (e: any) {
+          console.error('[slack] 처리 오류', e)
+          try { await say(`⚠️ 처리 중 오류가 났어요: ${(e?.message || String(e)).slice(0, 200)}`) } catch {}
         }
-        const reply: ReplyHandle = { update: ensure, final: ensure }
-        const msg: IncomingMessage = { text: message.text || '', userId: message.user, isOwner: true }
-        await handler(msg, reply)
       })
       await app.start()
       console.log('[slack] Socket Mode 시작')

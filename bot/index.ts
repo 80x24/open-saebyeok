@@ -30,11 +30,23 @@ const startHb = (notify: (t: string) => Promise<void>) =>
     claudeHome: DATA_DIR, chat: chatStreamWithRetry, notify, isBusy,
   })
 
+// 프로세스 치명 오류 → 소유자에게 알리고 종료 (run.sh 가 자동 재시작)
+let activeChannel: { notify: (t: string) => Promise<void> } | null = null
+process.on('uncaughtException', (e: any) => {
+  console.error('✗ uncaughtException:', e)
+  Promise.resolve(activeChannel?.notify(`⚠️ 오류가 나서 재시작할게요.\n${(e?.message || String(e)).slice(0, 200)}`))
+    .catch(() => {}).finally(() => setTimeout(() => process.exit(1), 800))
+})
+process.on('unhandledRejection', (e: any) => {
+  console.error('✗ unhandledRejection:', e) // 치명 아닐 수 있어 로그만 (반복되면 uncaughtException 으로 드러남)
+})
+
 const main = async () => {
   // worker — Redis 큐를 듣고 코어 handler 로 처리 (정체성·기억은 이 로컬에)
   if (MODE === 'worker') {
     const { createRedisWorkerChannel } = await import('./channels/redis')
     const channel = createRedisWorkerChannel()
+    activeChannel = channel
     startHb(channel.notify.bind(channel))
     console.log(`[${APP_NAME}] MODE=worker DATA_DIR=${DATA_DIR}`)
     await channel.start(buildHandler())
@@ -45,6 +57,7 @@ const main = async () => {
   if (MODE === 'relay') {
     if (!process.env.REDIS_URL) throw new Error('relay 모드는 REDIS_URL 가 필요합니다')
     const channel = await loadChannel(process.env.CHANNEL || '')
+    activeChannel = channel
     const { createRelayHandler } = await import('./relay')
     console.log(`[${APP_NAME}] MODE=relay channel=${channel.name}`)
     await channel.start(createRelayHandler(channel, process.env.REDIS_URL))
@@ -53,6 +66,7 @@ const main = async () => {
 
   // standalone (기본) — 한 대에서 입구+처리 모두
   const channel = await loadChannel(process.env.CHANNEL || '')
+  activeChannel = channel
   console.log(`[${APP_NAME}] MODE=standalone channel=${channel.name} DATA_DIR=${DATA_DIR}`)
 
   if (needsBootstrap(DATA_DIR)) {
