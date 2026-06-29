@@ -3,7 +3,6 @@
 //   standalone (기본) — 한 대에서 메신저 입구+처리 모두 (로컬 1대)
 //   worker            — Redis 큐를 듣고 처리만 (로컬, 데이터 보유). relay 와 짝
 //   relay             — 메신저 입구만 쥐고 worker 에 위임 (외부 상시 서버, 데이터 없음)
-//   hint              — 슬랙 힌트봇 (멘션/지정채널 감지 → 판별 → 초안 → 본인 DM)
 
 import { chatStreamWithRetry, cancelStream, clearSession, isBusy } from './claude'
 import { createMessageHandler } from './handler'
@@ -47,14 +46,6 @@ const main = async () => {
     const { createRelayHandler } = await import('./relay')
     console.log(`[${APP_NAME}] MODE=relay channel=${channel.name}`)
     await channel.start(createRelayHandler(channel, process.env.REDIS_URL))
-    return
-  }
-
-  // hint — 슬랙 힌트봇 (멘션/지정채널 감지 → 판별 → 초안 → 본인 DM. 공개 게시 없음)
-  if (MODE === 'hint') {
-    const { startSlackHintBot } = await import('./channels/slack')
-    console.log(`[${APP_NAME}] MODE=hint`)
-    await startSlackHintBot()
     return
   }
 

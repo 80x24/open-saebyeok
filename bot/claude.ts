@@ -204,17 +204,3 @@ export async function chatStreamWithRetry(
     throw err
   }
 }
-
-// 세션 없는 일회성 호출 (힌트봇 판별·초안 등 stateless 용도). 스트리밍 없이 최종 텍스트만.
-export async function chatOnce(prompt: string, model?: string): Promise<string> {
-  const env = { ...process.env }
-  delete env.CLAUDECODE
-  delete env.ANTHROPIC_API_KEY // 구독 OAuth 만 (종량제 누수 차단)
-  const proc = Bun.spawn([
-    'claude', '-p', '--model', model || process.env.CLAUDE_MODEL || 'opus',
-    '--output-format', 'text', '--dangerously-skip-permissions',
-  ], { cwd: DATA_DIR, env, stdin: 'pipe', stdout: 'pipe', stderr: 'pipe' })
-  proc.stdin.write(prompt); proc.stdin.end()
-  const [out] = await Promise.all([new Response(proc.stdout).text(), proc.exited])
-  return out.trim()
-}
