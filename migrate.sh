@@ -3,11 +3,11 @@
 #
 # 안전 원칙 (중요):
 #  - "복사"만 한다 (cp -n). 원본은 절대 건드리지 않는다 → 잘못 돌려도 데이터가 사라지지 않는다.
-#  - open-saebyeok 설치 흔적(옛 마커)이 없으면 거부한다 → Claude Code 본체/다른 에이전트 폴더 보호.
+#  - nuanua 설치 흔적(옛 마커)이 없으면 거부한다 → Claude Code 본체/다른 에이전트 폴더 보호.
 #  - CLAUDE.md 는 자동 복사하지 않는다 (Claude Code 전역 지침과 섞일 수 있어 사용자 판단에 맡김).
 set -e
 
-APP_NAME="${APP_NAME:-mure}"
+APP_NAME="${APP_NAME:-nuanua}"
 SRC="${1:-$HOME/.claude}"
 DST="${2:-$HOME/.$APP_NAME}"
 
@@ -16,8 +16,8 @@ echo "   from: $SRC"
 echo "   to:   $DST"
 echo ""
 
-# 안전장치 — open-saebyeok 설치 흔적이 없으면 중단 (본체 폴더 오인 방지)
-if [ ! -e "$SRC/.open-saebyeok-bootstrapped" ] && [ ! -e "$SRC/.open-saebyeok-path" ] \
+# 안전장치 — nuanua 설치 흔적이 없으면 중단 (본체 폴더 오인 방지)
+if [ ! -e "$SRC/.nuanua-bootstrapped" ] && [ ! -e "$SRC/.nuanua-path" ] \
    && [ ! -e "$SRC/.$APP_NAME-bootstrapped" ] && [ ! -e "$SRC/.$APP_NAME-path" ]; then
   echo "✗ $SRC 에서 설치 흔적(마커)을 찾지 못했습니다."
   echo "  이 폴더는 마이그레이션 대상이 아닙니다 (Claude Code 본체 등 다른 데이터를 보호합니다)."
@@ -41,7 +41,7 @@ for item in identity memory skills HEARTBEAT.md; do
 done
 
 # 부트스트랩 마커 → 새 이름으로 복사 (있으면 재부트스트랩 방지)
-if [ -e "$SRC/.open-saebyeok-bootstrapped" ] || [ -e "$SRC/.$APP_NAME-bootstrapped" ]; then
+if [ -e "$SRC/.nuanua-bootstrapped" ] || [ -e "$SRC/.$APP_NAME-bootstrapped" ]; then
   : > "$DST/.$APP_NAME-bootstrapped"
   echo "  + 부트스트랩 마커 (.$APP_NAME-bootstrapped)"
 fi

@@ -21,6 +21,6 @@
 
 <!--
 구현 힌트: bot/ 에 croner 스케줄을 추가하고,
-`chatStream(readFileSync('~/.mure/HEARTBEAT.md'), ...)` 형태로 호출하면 된다.
+`chatStream(readFileSync('~/.nuanua/HEARTBEAT.md'), ...)` 형태로 호출하면 된다.
 MVP 골격에는 아직 스케줄러가 연결돼 있지 않다 (다음 증분).
 -->

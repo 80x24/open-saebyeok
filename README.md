@@ -1,4 +1,4 @@
-# mure
+# nuanua
 
 **메신저로 대화하는, 이름을 가진 나만의 AI 친구.**
 텔레그램이나 슬랙으로 말을 걸면 답해주고, 나를 기억하고, 시키지 않아도 알아서 챙겨줘요.
@@ -45,14 +45,14 @@
 
 준비됐으면, **Claude Code를 열고 이렇게 말하세요:**
 
-> 💬 "github.com/80x24/open-saebyeok 설치해줘"
+> 💬 "github.com/80x24/nuanua 설치해줘"
 
 그러면 알아서 다 받아서 설치해요. 봇이 돌아가는 데 필요한 다른 프로그램도 **알아서 깔아주니** 신경 쓸 게 없어요.
 
 > 🔧 직접 설치하려면:
 > ```bash
-> git clone https://github.com/80x24/open-saebyeok ~/mure
-> cd ~/mure && ./install.sh
+> git clone https://github.com/80x24/nuanua ~/nuanua
+> cd ~/nuanua && ./install.sh
 > ```
 > Bun 런타임이 없으면 `install.sh` 가 자동으로 설치합니다.
 
@@ -100,10 +100,10 @@
 ### 폴더 구조
 
 ```
-mure/
-├─ install.sh            # ~/.mure 배치 + 인증 점검 + bun 자동설치
+nuanua/
+├─ install.sh            # ~/.nuanua 배치 + 인증 점검 + bun 자동설치
 ├─ upgrade.sh            # 코드만 갱신 (데이터 보존)
-├─ migrate.sh            # 레거시 ~/.claude → ~/.mure 비파괴 이전
+├─ migrate.sh            # 레거시 ~/.claude → ~/.nuanua 비파괴 이전
 ├─ setup-relay.sh        # relay 셋업 위자드 (worker 자동전환 + 배포 안내)
 ├─ Dockerfile · fly.toml # relay 배포 골격 (외부 상시 서버)
 ├─ bot/
@@ -126,7 +126,7 @@ mure/
 
 ### 업그레이드 · 데이터 분리
 
-정체성·기억은 코드와 분리된 전용 폴더 `~/.mure/` 에 있습니다(Claude Code 본체 `~/.claude` 와 섞이지 않음). 그래서 `./upgrade.sh` 는 **코드만 갱신하고 데이터는 그대로 보존**합니다. 예전에 `~/.claude` 에 설치했다면 `./migrate.sh` 로 비파괴 이전하세요.
+정체성·기억은 코드와 분리된 전용 폴더 `~/.nuanua/` 에 있습니다(Claude Code 본체 `~/.claude` 와 섞이지 않음). 그래서 `./upgrade.sh` 는 **코드만 갱신하고 데이터는 그대로 보존**합니다. 예전에 `~/.claude` 에 설치했다면 `./migrate.sh` 로 비파괴 이전하세요.
 
 ### 비용 구조
 
@@ -134,7 +134,7 @@ mure/
 
 ### Hermes 5기둥 대비
 
-| 기둥 | mure |
+| 기둥 | nuanua |
 |---|---|
 | **Soul** (정체성) | ✅ SOUL 템플릿 + 첫 실행 이름 온보딩 |
 | **Memory** (기억) | ✅ 마크다운 3계층 (active/semantic/archive) |
@@ -142,7 +142,7 @@ mure/
 | **Skills** (스킬 자동화) | ✅ 승인 게이트 (`pending` → 사용자 승인 → `active`) |
 | **Self-improvement** | ✅ Curator (오래된 기억·스킬을 비파괴 archive) |
 
-**차별점:** Hermes는 자동으로 쌓여 drift(검증 안 된 자기개선) 위험이 있습니다. mure은 **승인 게이트 + 비파괴 정리**로 *"compounding하되 폭주하지 않게"* 만듭니다.
+**차별점:** Hermes는 자동으로 쌓여 drift(검증 안 된 자기개선) 위험이 있습니다. nuanua은 **승인 게이트 + 비파괴 정리**로 *"compounding하되 폭주하지 않게"* 만듭니다.
 
 ### 보안
 

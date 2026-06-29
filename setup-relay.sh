@@ -8,7 +8,7 @@
 # 정책: worker 전환(.env 설정)은 자동. relay 배포는 Fly 명령을 안내한다(실배포는 사용자 확인).
 set -e
 
-APP_NAME="${APP_NAME:-mure}"
+APP_NAME="${APP_NAME:-nuanua}"
 BOT_ENV="${BOT_ENV:-$(cd "$(dirname "$0")" && pwd)/bot/.env}"
 
 # .env 키 설정 — 있으면 교체, 없으면 추가 (BSD/GNU 공통)

@@ -2,7 +2,7 @@
 # relay 는 텔레그램 long-poll / 슬랙 Socket Mode 라 인바운드 포트가 필요 없습니다(outbound only).
 # 따라서 [http_service] 없이 항상 1대를 유지합니다.
 
-app = "mure-relay"            # 배포 시 본인 앱 이름으로
+app = "nuanua-relay"            # 배포 시 본인 앱 이름으로
 primary_region = "nrt"
 
 [build]

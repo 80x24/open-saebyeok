@@ -6,7 +6,7 @@
 #   새로 생긴 기본 템플릿만 보충한다. 기존 정체성·기억은 그대로 보존된다.
 set -e
 
-APP_NAME="${APP_NAME:-mure}"
+APP_NAME="${APP_NAME:-nuanua}"
 DATA_DIR="${AGENT_HOME:-${CLAUDE_HOME:-$HOME/.$APP_NAME}}"
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 

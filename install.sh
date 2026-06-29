@@ -4,7 +4,7 @@
 set -e
 
 # 이름·데이터 경로는 bot/config.ts 와 동일 규칙 (리네이밍 시 양쪽 함께)
-APP_NAME="${APP_NAME:-mure}"
+APP_NAME="${APP_NAME:-nuanua}"
 # 데이터 홈 우선순위: AGENT_HOME > CLAUDE_HOME(레거시 호환) > ~/.${APP_NAME}
 DATA_DIR="${AGENT_HOME:-${CLAUDE_HOME:-$HOME/.$APP_NAME}}"
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"

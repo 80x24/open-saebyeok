@@ -4,10 +4,10 @@
 
 ## 셋업 & 온보딩 (최초 1회)
 사용자가 **"설정 시작"** 이라고 하거나 설치 직후 처음 말을 걸면, 먼저 셋업 상태를 점검하세요.
-봇 설치 경로는 `cat ~/.mure/.mure-path` 로 확인합니다 (보통 `~/mure`).
+봇 설치 경로는 `cat ~/.nuanua/.nuanua-path` 로 확인합니다 (보통 `~/nuanua`).
 
 1. **채널 미설정** (`<설치경로>/bot/.env` 의 `CHANNEL` 이 비었거나 봇이 "채널 미설정" 에러) → `identity/SETUP.md` 위자드를 따라 채널·토큰을 **대화로** 설정하세요.
-2. **이름 미설정** (`~/.mure/.mure-bootstrapped` 마커 없음) → 봇이 뜬 뒤, `identity/BOOTSTRAP.md` 를 따라 **가장 먼저 이름부터** 정하세요.
+2. **이름 미설정** (`~/.nuanua/.nuanua-bootstrapped` 마커 없음) → 봇이 뜬 뒤, `identity/BOOTSTRAP.md` 를 따라 **가장 먼저 이름부터** 정하세요.
 
 ## 기억
 - 결정·사실·해결한 문제 → `memory/active/<날짜>.md`
@@ -31,4 +31,4 @@
 - 환경에 `ANTHROPIC_API_KEY` 가 떠 있으면 OAuth 보다 우선해 **종량제로 과금**됩니다. 봇은 이를 자동으로 제거하지만, 다른 스크립트에서 export 하지 않도록 주의하세요.
 
 ## 데이터 폴더
-정체성·기억은 전용 폴더 `~/.mure/` 에 있습니다 (Claude Code 본체 `~/.claude` 와 분리되어 섞이지 않음). Write/Edit 도구로 바로 수정할 수 있습니다.
+정체성·기억은 전용 폴더 `~/.nuanua/` 에 있습니다 (Claude Code 본체 `~/.claude` 와 분리되어 섞이지 않음). Write/Edit 도구로 바로 수정할 수 있습니다.

@@ -8,7 +8,7 @@ import { join } from 'path'
 
 // 프로젝트 이름 (잠정값 — 확정 시 이 한 줄만 교체).
 // env APP_NAME 으로 런타임 override 가능.
-export const APP_NAME = process.env.APP_NAME || 'mure'
+export const APP_NAME = process.env.APP_NAME || 'nuanua'
 
 // 데이터 홈 (정체성·기억·세션 마커가 사는 곳). 우선순위:
 //   1) AGENT_HOME   — 명시적 지정. 이름과 무관한 키라 리네이밍해도 안 건드려도 됨

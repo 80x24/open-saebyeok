@@ -11,7 +11,7 @@ if ! command -v bun >/dev/null 2>&1; then
 fi
 
 BOT_DIR="$(pwd)"
-APP_NAME="${APP_NAME:-mure}"   # config.ts 와 같은 잠정 이름 (셸/TS 경계라 값 공유 불가 — 리네이밍 시 양쪽 함께)
+APP_NAME="${APP_NAME:-nuanua}"   # config.ts 와 같은 잠정 이름 (셸/TS 경계라 값 공유 불가 — 리네이밍 시 양쪽 함께)
 LOCKFILE="/tmp/${APP_NAME}.lock"
 
 cleanup_all() {
