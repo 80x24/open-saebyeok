@@ -29,7 +29,7 @@ export async function runHeartbeatOnce(deps: HeartbeatDeps): Promise<HeartbeatRe
 
     // 2) HEARTBEAT.md 지침을 claude 로 실행
     const { response } = await deps.chat(
-      `[자동 하트비트] 아래 지침을 수행하세요. 끝에 결과를 한 줄로 요약 보고하세요.\n\n${instructions}`,
+      `[자동 하트비트] 아래 지침을 수행하세요. 끝에 결과를 한 줄로 요약 보고하세요. 보고(요약)는 반드시 한국어로 작성하세요.\n\n${instructions}`,
       () => {}
     )
     const summary = response?.trim() || ''
