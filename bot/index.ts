@@ -35,6 +35,15 @@ const startHb = (notify: (t: string) => Promise<void>) =>
     claudeHome: DATA_DIR, chat: chatStreamWithRetry, notify, isBusy,
   })
 
+// 시작/재시작 인사 — 기본 ON (relay 외 모든 기능 기본 ON 정책).
+// STARTUP_GREETING=off 로 끄거나, 임의 문구로 덮어쓸 수 있다. (최초 설치=bootstrap 안내가 따로 나가므로 그땐 생략)
+const greetStartup = async (notify: (t: string) => Promise<void>) => {
+  const g = process.env.STARTUP_GREETING
+  if (g === 'off') return
+  const msg = g && g.trim() ? g : '🌅 다시 깨어났어요!'
+  try { await notify(msg) } catch {}
+}
+
 // 프로세스 치명 오류 → 소유자에게 알리고 종료 (run.sh 가 자동 재시작)
 let activeChannel: { notify: (t: string) => Promise<void> } | null = null
 process.on('uncaughtException', (e: any) => {
@@ -96,6 +105,8 @@ const main = async () => {
       '저는 아직 이름이 없어요. 먼저 저를 뭐라고 부를지 정해주세요.\n' +
       '메시지로 이름을 보내주시면 정체성을 설정할게요. (다른 걸 먼저 물어봐도 괜찮아요.)'
     )
+  } else {
+    await greetStartup(channel.notify.bind(channel)) // 시작/재시작 인사
   }
 
   startHb(channel.notify.bind(channel))

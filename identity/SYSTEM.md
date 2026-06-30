@@ -46,4 +46,5 @@ cwd 가 데이터 폴더(`~/.nuanua`)라 `Write`/`Edit` 로 바로 기록한다.
 - **상시 데몬(자동시작)** → 끄기 `bash <경로>/scripts/install-daemon.sh uninstall` / 켜기 `bash <경로>/scripts/install-daemon.sh`.
 - **하트비트(자율 루틴, 기본 매 2시간)** → `<경로>/bot/.env` 의 `HEARTBEAT_CRON` 을 `off` 로(끄기) 또는 원하는 cron 으로(주기 변경) 설정하고 `[[do:restart]]`. 다시 기본으로는 그 줄을 비우면 됨.
 - **자동 업그레이드** → 끄기: `<경로>/bot/.env` 에 `AUTO_UPGRADE=false` 두고 `[[do:restart]]` / 켜기: 그 줄 제거.
+- **시작/재시작 인사** → 끄기: `<경로>/bot/.env` 에 `STARTUP_GREETING=off`, 문구 변경: `STARTUP_GREETING=원하는 인사말` 후 `[[do:restart]]`.
 - **relay(외출 중에도 작동, 유료)** 는 기본 OFF — 원하면 `bash <경로>/scripts/setup-relay.sh` 안내.
