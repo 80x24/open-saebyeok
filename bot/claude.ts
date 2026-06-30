@@ -17,6 +17,46 @@ const AUTOCOMPACT_PCT = process.env.CLAUDE_AUTOCOMPACT_PCT || '85'
 // Hermes "slot #1 frozen prefix" 원칙: 프로세스 시작 시 1회 조립해 세션 내내 고정(프리픽스 캐시 보존).
 // → 인격·사용자모델·스킬을 에이전트의 "알아서 읽기"에 맡기지 않고 항상 컨텍스트에 보장한다.
 //   (cwd 의 ~/.nuanua/CLAUDE.md 는 claude 가 자동 로드하지만 SOUL/USER/스킬은 아니므로 여기서 주입)
+// --- 스킬 인덱스 헬퍼 (AgentSkills 호환: frontmatter name/description + requires 게이트) ---
+function parseFrontmatter(body: string): Record<string, string> {
+  const out: Record<string, string> = {}
+  const m = body.match(/^---\r?\n([\s\S]*?)\r?\n---/)
+  if (m) for (const line of m[1].split('\n')) {
+    const mm = line.match(/^([a-zA-Z0-9_-]+):\s*(.*)$/)
+    if (mm) out[mm[1].toLowerCase()] = mm[2].trim().replace(/^["']|["']$/g, '')
+  }
+  return out
+}
+function firstProseLine(body: string): string {
+  const after = body.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '')
+  return after.split('\n').find((l) => l.trim() && !l.startsWith('#') && !l.startsWith('-'))?.trim() || ''
+}
+function binOnPath(bin: string): boolean {
+  return (process.env.PATH || '').split(':').some((d) => { try { return existsSync(join(d, bin)) } catch { return false } })
+}
+// requires 게이트 — bins(모두 PATH) · env(모두 설정) · os(일치) 안 맞으면 인덱스에서 제외
+function skillReqsMet(fm: Record<string, string>): boolean {
+  const csv = (k: string) => (fm[k] || '').split(',').map((s) => s.trim()).filter(Boolean)
+  if (csv('requires-bins').some((b) => !binOnPath(b))) return false
+  if (csv('requires-env').some((e) => !process.env[e])) return false
+  const os = (fm['requires-os'] || '').trim()
+  if (os && os !== process.platform) return false
+  return true
+}
+// active 스킬 1건 → 인덱스 줄 (게이트 통과 못하면 null). 플랫 <name>.md / 디렉토리 <name>/SKILL.md 둘 다.
+function skillIndexLine(activeDir: string, entryName: string, isDir: boolean): string | null {
+  try {
+    const file = isDir ? join(activeDir, entryName, 'SKILL.md') : join(activeDir, entryName)
+    const body = readFileSync(file, 'utf-8')
+    const fm = parseFrontmatter(body)
+    if (!skillReqsMet(fm)) return null
+    const name = fm.name || entryName.replace(/\.md$/, '')
+    const d = fm.description
+    const desc = (d && d !== '>' && d !== '|' ? d : firstProseLine(body)).slice(0, 120)
+    return `- ${name}: ${desc}`
+  } catch { return null }
+}
+
 function buildSystemPrompt(): string {
   const parts: string[] = []
   try { parts.push(readFileSync(join(import.meta.dir, '..', 'identity', 'SYSTEM.md'), 'utf-8').trim()) } catch {}
@@ -29,18 +69,15 @@ function buildSystemPrompt(): string {
   for (const [label, p] of idFiles) {
     try { const t = readFileSync(p, 'utf-8').trim(); if (t) parts.push(`# ${label}\n${t}`) } catch {}
   }
-  // 활성 스킬 인덱스 (progressive disclosure — 이름+요약만, 전문은 필요시 Read)
+  // 활성 스킬 인덱스 (progressive disclosure: 이름+요약만, 전문은 필요시 Read. requires 게이트로 환경 안 맞는 건 제외)
   try {
     const dir = join(DATA_DIR, 'skills', 'active')
-    const files = readdirSync(dir).filter((f) => f.endsWith('.md'))
-    if (files.length) {
-      const idx = files.map((f) => {
-        const body = readFileSync(join(dir, f), 'utf-8')
-        const desc = (body.match(/description:\s*(.+)/i)?.[1]
-          || body.split('\n').find((l) => l.trim() && !l.startsWith('#') && !l.startsWith('-')) || '').trim().slice(0, 100)
-        return `- ${f.replace(/\.md$/, '')}: ${desc}`
-      }).join('\n')
-      parts.push(`# 활성 스킬 (관련 작업이면 \`skills/active/<이름>.md\` 를 Read 해 따르라)\n${idx}`)
+    const lines = readdirSync(dir, { withFileTypes: true })
+      .filter((e) => (e.isFile() && e.name.endsWith('.md') && e.name !== '.gitkeep') || (e.isDirectory() && existsSync(join(dir, e.name, 'SKILL.md'))))
+      .map((e) => skillIndexLine(dir, e.name, e.isDirectory()))
+      .filter((l): l is string => l !== null)
+    if (lines.length) {
+      parts.push(`# 활성 스킬 (관련 작업이면 \`skills/active/<이름>.md\` 또는 \`skills/active/<이름>/SKILL.md\` 를 Read 해 따르라)\n${lines.join('\n')}`)
     }
   } catch {}
   return parts.join('\n\n---\n\n')

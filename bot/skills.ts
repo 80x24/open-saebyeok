@@ -10,34 +10,45 @@ function skillsDir(claudeHome: string, sub: string): string {
 function ensureDirs(claudeHome: string) {
   for (const s of ['active', 'pending', 'archive']) mkdirSync(skillsDir(claudeHome, s), { recursive: true })
 }
-function listMd(p: string): string[] {
+// 플랫 <name>.md 와 AgentSkills 디렉토리 <name>/SKILL.md 둘 다 인식
+function listSkillNames(p: string): string[] {
   if (!existsSync(p)) return []
-  return readdirSync(p).filter((f) => f.endsWith('.md') && f !== '.gitkeep').map((f) => f.replace(/\.md$/, ''))
+  const out = new Set<string>()
+  for (const e of readdirSync(p, { withFileTypes: true })) {
+    if (e.isFile() && e.name.endsWith('.md') && e.name !== '.gitkeep') out.add(e.name.replace(/\.md$/, ''))
+    else if (e.isDirectory() && existsSync(join(p, e.name, 'SKILL.md'))) out.add(e.name)
+  }
+  return [...out]
+}
+// name 의 실제 엔트리(<name>.md 또는 <name> 디렉토리) — 없으면 null
+function skillEntry(dir: string, name: string): string | null {
+  if (existsSync(join(dir, `${name}.md`))) return `${name}.md`
+  if (existsSync(join(dir, name, 'SKILL.md'))) return name
+  return null
+}
+function moveSkill(claudeHome: string, name: string, from: string, to: string): boolean {
+  ensureDirs(claudeHome)
+  const entry = skillEntry(skillsDir(claudeHome, from), name)
+  if (!entry) return false
+  renameSync(join(skillsDir(claudeHome, from), entry), join(skillsDir(claudeHome, to), entry))
+  return true
 }
 
 export function listSkills(claudeHome: string): { active: string[]; pending: string[] } {
   return {
-    active: listMd(skillsDir(claudeHome, 'active')),
-    pending: listMd(skillsDir(claudeHome, 'pending')),
+    active: listSkillNames(skillsDir(claudeHome, 'active')),
+    pending: listSkillNames(skillsDir(claudeHome, 'pending')),
   }
 }
 
-/** 대기 중 스킬을 활성화 (pending → active) */
+/** 대기 중 스킬을 활성화 (pending → active). 플랫·디렉토리 스킬 모두. */
 export function approveSkill(claudeHome: string, name: string): boolean {
-  ensureDirs(claudeHome)
-  const from = join(skillsDir(claudeHome, 'pending'), `${name}.md`)
-  if (!existsSync(from)) return false
-  renameSync(from, join(skillsDir(claudeHome, 'active'), `${name}.md`))
-  return true
+  return moveSkill(claudeHome, name, 'pending', 'active')
 }
 
-/** 대기 중 스킬을 거절 — 삭제하지 않고 archive 로 보낸다 (비파괴) */
+/** 대기 중 스킬을 거절 — 삭제하지 않고 archive 로 (비파괴). */
 export function rejectSkill(claudeHome: string, name: string): boolean {
-  ensureDirs(claudeHome)
-  const from = join(skillsDir(claudeHome, 'pending'), `${name}.md`)
-  if (!existsSync(from)) return false
-  renameSync(from, join(skillsDir(claudeHome, 'archive'), `${name}.md`))
-  return true
+  return moveSkill(claudeHome, name, 'pending', 'archive')
 }
 
 /** /skill 명령 처리 — 처리했으면 응답 문자열, 아니면 null */

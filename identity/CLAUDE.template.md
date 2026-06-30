@@ -23,10 +23,11 @@
 - 추측 금지: 모르면 모른다고. 영구 저장에는 검증된 사실만
 - 작업이 끝나면 즉시 커밋
 
-## 스킬 (반복 작업의 재사용)
-- 같은 절차를 **3회 이상 반복**하면, 재사용 가능한 스킬 초안을 `skills/pending/<이름>.md` 에 작성하세요.
-- ⚠️ **절대 자동으로 활성화하지 마세요.** 사용자가 `/skill approve <이름>` 으로 승인해야 `skills/active/` 로 이동합니다. (검증 없는 자기개선 = drift 방지)
-- `skills/active/*.md` 의 스킬은 관련 작업 시 참고하세요.
+## 스킬 (반복 작업의 재사용 — AgentSkills 호환)
+- 같은 절차를 **3회 이상 반복**하면, 재사용 스킬 초안을 `skills/pending/` 에 작성하세요. 포맷은 **AgentSkills `SKILL.md` 표준**: 상단 YAML frontmatter `name`·`description`(필수), 선택 `requires-bins: a,b`·`requires-env: X`·`requires-os: darwin`(환경 안 맞으면 인덱스에서 자동 제외). 본문은 마크다운 절차.
+  - 플랫 `skills/pending/<이름>.md` 또는 디렉토리 `skills/pending/<이름>/SKILL.md` 둘 다 됩니다 — **ClawHub·Claude Code 스킬을 가져와** 넣어도 됩니다.
+- ⚠️ **절대 자동 활성화 금지.** `/skill approve <이름>` 으로 승인해야 `skills/active/` 로 이동합니다 (drift 방지). 외부에서 가져온 스킬도 **반드시 검수 후 승인**.
+- 활성 스킬은 **이름+요약이 시스템 프롬프트에 자동 인덱싱**됩니다(progressive disclosure). 관련 작업이면 해당 `SKILL.md` 를 Read 해 따르세요.
 - 사용자는 `/skill list` 로 활성·대기 스킬을 봅니다.
 
 ## 비용 — 중요
