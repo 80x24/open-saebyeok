@@ -9,7 +9,9 @@ import { createMessageHandler } from './handler'
 import { needsBootstrap } from './bootstrap'
 import { startHeartbeat } from './heartbeat'
 import { loadChannel } from './channels/load'
+import { checkUpdate } from './version'
 import { APP_NAME, DATA_DIR } from './config'
+import { join } from 'path'
 
 const MODE = (process.env.MODE || 'standalone').toLowerCase()
 
@@ -41,7 +43,23 @@ process.on('unhandledRejection', (e: any) => {
   console.error('✗ unhandledRejection:', e) // 치명 아닐 수 있어 로그만 (반복되면 uncaughtException 으로 드러남)
 })
 
+// 시작 후 하루 1회 버전 체크 — 구버전이면 알림(대화형 유도) 또는 자동 업그레이드(AUTO_UPGRADE=true)
+const REPO_DIR = join(import.meta.dir, '..')
+const versionCheck = () => checkUpdate(REPO_DIR).then(async (r) => {
+  if (!r || r.behind <= 0) return
+  if (process.env.AUTO_UPGRADE === 'true') {
+    await activeChannel?.notify(`🆕 새 버전(${r.behind}개 커밋) — 자동 업데이트할게요…`)
+    const p = Bun.spawn(['bash', join(REPO_DIR, 'upgrade.sh')], { stdout: 'inherit', stderr: 'inherit' })
+    await p.exited
+    await activeChannel?.notify('✅ 업데이트 완료. 재시작해요.')
+    setTimeout(() => process.exit(0), 500) // run.sh 가 새 코드로 재시작
+  } else {
+    await activeChannel?.notify(`🆕 새 버전이 있어요 (${r.behind}개 커밋 뒤처짐). "업데이트해줘" 라고 하면 적용할게요.`)
+  }
+}).catch(() => {})
+
 const main = async () => {
+  setTimeout(() => void versionCheck(), 5000) // 시작 5초 후 백그라운드 버전 체크 (하루 1회)
   // worker — Redis 큐를 듣고 코어 handler 로 처리 (정체성·기억은 이 로컬에)
   if (MODE === 'worker') {
     const { createRedisWorkerChannel } = await import('./channels/redis')

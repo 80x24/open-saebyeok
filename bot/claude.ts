@@ -13,6 +13,11 @@ const TIMEOUT_MS = Number(process.env.CLAUDE_TIMEOUT_MS) || 1_800_000 // 30분
 const GRACEFUL_KILL_MS = 10_000
 const AUTOCOMPACT_PCT = process.env.CLAUDE_AUTOCOMPACT_PCT || '85'
 
+// 코어 시스템 프롬프트 (번들 identity/SYSTEM.md — git 으로 전파, 매 호출 주입. 사용자 커스텀은 ~/.nuanua/CLAUDE.md)
+const SYSTEM_PROMPT = (() => {
+  try { return readFileSync(join(import.meta.dir, '..', 'identity', 'SYSTEM.md'), 'utf-8') } catch { return '' }
+})()
+
 // SIGTERM 후 유예시간 내 안 죽으면 SIGKILL — spawn 종료 공통 로직 (값 통일)
 function killGracefully(proc: ReturnType<typeof Bun.spawn> | null, graceMs = GRACEFUL_KILL_MS) {
   if (!proc) return
@@ -109,6 +114,7 @@ export async function chatStream(
       '--dangerously-skip-permissions',
     ]
     args.push(sessionCreated ? '--resume' : '--session-id', sessionId!)
+    if (SYSTEM_PROMPT) args.push('--append-system-prompt', SYSTEM_PROMPT)
 
     const env = { ...process.env }
     delete env.CLAUDECODE

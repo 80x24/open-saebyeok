@@ -9,6 +9,15 @@ set -e
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$REPO_DIR/lib.sh"   # APP_NAME, DATA_DIR (SSOT)
 
+# --check: 업데이트 있는지만 확인 (fetch + 비교, 파일 변경·재시작 없음) — 봇/cron 게이트용
+if [ "$1" = "--check" ]; then
+  cd "$REPO_DIR"
+  git fetch -q origin 2>/dev/null || { echo "FETCH_FAIL"; exit 0; }
+  behind=$(git rev-list --count HEAD..origin/main 2>/dev/null || echo 0)
+  [ "$behind" -gt 0 ] && echo "BEHIND $behind" || echo "UPTODATE"
+  exit 0
+fi
+
 echo "▶ $APP_NAME 업그레이드"
 echo "   코드(갱신): $REPO_DIR"
 echo "   데이터(보존): $DATA_DIR"
