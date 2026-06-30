@@ -1,8 +1,8 @@
 #!/bin/bash
 # CLI opt-in 토글 — 터미널 claude 에서도 nuanua 데이터를 참조하게 ~/.claude/CLAUDE.md 에
 # 마커 블록을 add/remove 한다. 봇은 영향 없음(봇은 cwd+SYSTEM.md 로 이미 적용).
-#   bash scripts/setup-cli.sh on    (추가, 기본)
-#   bash scripts/setup-cli.sh off   (제거)
+#   bash scripts/setup-cli.sh on    (추가, 기본 — install.sh 가 설치 시 자동 실행)
+#   bash scripts/setup-cli.sh off   (제거, opt-out)
 set -e
 
 source "$(cd "$(dirname "$0")/.." && pwd)/lib.sh"   # APP_NAME

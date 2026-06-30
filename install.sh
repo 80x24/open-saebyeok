@@ -60,6 +60,14 @@ if [ ! -e "$REPO_DIR/bot/.env" ]; then
   cp "$REPO_DIR/.env.example" "$REPO_DIR/bot/.env"; echo "  + bot/.env (셋업 위자드가 채웁니다)"
 fi
 
+# 5-b) CLI 참조 — 기본 ON (opt-out). 터미널 claude 에서도 nuanua 데이터를 참조하게 한다.
+#       끄려면: CLI_REF=off ./install.sh  또는  bash scripts/setup-cli.sh off
+if [ "${CLI_REF:-on}" = "off" ]; then
+  echo "▶ CLI 참조 비활성(off) — 건너뜀"
+else
+  bash "$REPO_DIR/scripts/setup-cli.sh" on
+fi
+
 if [ -z "$QUIET" ]; then
 cat <<EOF
 
@@ -68,5 +76,7 @@ cat <<EOF
      (또는 직접 $REPO_DIR/bot/.env 에 CHANNEL·토큰 입력)
   2) cd $REPO_DIR/bot && ./run.sh
   3) 메신저로 첫 메시지를 보내면 — 에이전트가 가장 먼저 "이름"을 물어봅니다.
+
+ℹ️  터미널 claude 의 nuanua 참조는 기본 ON 입니다. 끄려면: bash $REPO_DIR/scripts/setup-cli.sh off
 EOF
 fi
