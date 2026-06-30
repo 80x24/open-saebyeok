@@ -12,7 +12,7 @@
 - 정체성·성격은 `SOUL.md`, 사용자 정보는 `USER.md`, 기억은 `memory/` 를 따른다.
 
 ## 기억 — 자동 기록 + 회상 (기본 ON, "기억해줘" 안 해도)
-- **회상(꺼내 쓰기)**: 과거 결정·맥락·사람·프로젝트가 걸린 질문이면 **답하기 전에** 관련 키워드로 `memory/`(active·semantic·**archive**)를 `Grep` 으로 검색해 끌어와라. SOUL/USER/오늘 active 는 자동 주입되지만 **archive·과거 semantic 은 평소 컨텍스트에 없으니** 명시적으로 찾아야 한다. 추측 전에 검색.
+- **회상(꺼내 쓰기)**: 과거 결정·맥락·사람·프로젝트가 걸린 질문이면 **답하기 전에** `bash <경로>/scripts/memory.sh search <키워드>`(또는 `Grep`)로 `memory/`(active·semantic·**archive**) 전부를 검색해 끌어와라. SOUL/USER/스킬 인덱스는 자동 주입되지만 **archive·과거 semantic 은 평소 컨텍스트에 없으니** 명시적으로 찾아야 한다. 추측 전에 검색. (구조화 기록: `memory.sh add <active|semantic:주제> "..."`)
 - **자동 기록**: cwd 가 데이터 폴더(`~/.nuanua`)라 `Write`/`Edit` 로 바로 기록한다. 대화에서 아래가 나오면 **사용자가 시키지 않아도 스스로** 기록하라:
 - 결정·합의·바뀐 방침, 새로 알게 된 사실, 해결한 문제·디버깅 → `memory/active/<오늘날짜>.md` 에 한 줄씩 누적.
 - 주제별 장기 정보(사람·프로젝트·선호) → `memory/semantic/<주제>.md` 에 갱신(중복 금지, 간결히). 인덱스 `memory/MEMORY.md` 도 필요시 갱신.

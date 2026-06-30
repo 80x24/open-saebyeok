@@ -141,15 +141,17 @@ nuanua/                    # 코드·지침 (THE RULE — git 으로 버전업)
 
 ### Hermes 5기둥 대비
 
-| 기둥 | nuanua |
-|---|---|
-| **Soul** (정체성) | ✅ SOUL 템플릿 + 첫 실행 이름 온보딩 |
-| **Memory** (기억) | ✅ 마크다운 3계층 (active/semantic/archive) |
-| **Crons** (자율 루틴) | ✅ 하트비트 (기본 OFF, `HEARTBEAT_CRON`) |
-| **Skills** (스킬 자동화) | ✅ 승인 게이트 (`pending` → 사용자 승인 → `active`) |
-| **Self-improvement** | ✅ Curator (오래된 기억·스킬을 비파괴 archive) |
+| 기둥 | nuanua | 쓰기(축적) | 꺼내쓰기(retrieval) |
+|---|---|---|---|
+| **Soul** (정체성) | SOUL/IDENTITY/USER 템플릿 + 이름 온보딩 | ✅ | ✅ 매 세션 **시스템 프롬프트 주입**(frozen prefix, 캐시 보존) |
+| **Memory** (기억) | 마크다운 3계층 (active/semantic/archive) | ✅ 자동 기록("기억해줘" 불필요) | ✅ `memory.sh search` 회상(archive 포함) |
+| **Crons** (자율 루틴) | 하트비트 (기본 ON, 매 2시간, `HEARTBEAT_CRON`) | — | ✅ **격리 세션**(대화 맥락 미오염) |
+| **Skills** (스킬 자동화) | 승인 게이트 (`pending` → 승인 → `active`) | ✅ 에이전트 초안 | ✅ **활성 스킬 인덱스 자동 주입**(progressive disclosure) |
+| **Self-improvement** | 비파괴 Curator + 위 retrieval 루프 | ✅ | ✅ 주입+검색+인덱스로 **compounding 완결** |
 
-**차별점:** Hermes는 자동으로 쌓여 drift(검증 안 된 자기개선) 위험이 있습니다. nuanua은 **승인 게이트 + 비파괴 정리**로 *"compounding하되 폭주하지 않게"* 만듭니다.
+> 🔧 **쓰기뿐 아니라 꺼내쓰기까지**: 정체성·사용자모델·활성 스킬을 매 세션 시스템 프롬프트에 주입하고(Hermes "frozen slot #1"), 기억은 `scripts/memory.sh search` 로 회상합니다(archive 무덤까지). 자율 루틴은 격리 세션에서 돌아 대화를 오염시키지 않습니다.
+
+**차별점:** Hermes는 자동으로 쌓여 drift(검증 안 된 자기개선) 위험이 있습니다. nuanua은 **승인 게이트 + 비파괴 정리**로 *"compounding하되 폭주하지 않게"* 만듭니다. (Hermes·OpenClaw 가 종량제 API 인 반면 nuanua 은 구독 OAuth 로 추가 비용 0.)
 
 ### 보안
 

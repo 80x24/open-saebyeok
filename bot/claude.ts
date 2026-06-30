@@ -126,23 +126,29 @@ function formatToolHint(name: string, input: string): string {
 
 export async function chatStream(
   message: string,
-  onChunk: (displayText: string) => void
+  onChunk: (displayText: string) => void,
+  opts: { isolated?: boolean } = {}
 ): Promise<{ response: string; display: string }> {
   if (busy) throw new Error('이전 응답 처리 중...')
   cancelled = false
   busy = true
+  const isolated = opts.isolated === true // 격리: 메인 대화 세션과 분리된 새 세션 (하트비트 등 자율 루틴)
   let proc: ReturnType<typeof Bun.spawn> | null = null
   let timeout: Timer | null = null
 
   try {
-    ensureSessionId()
     const args = [
       '-p', '--model', process.env.CLAUDE_MODEL || 'opus',
       '--output-format', 'stream-json',
       '--verbose', '--include-partial-messages',
       '--dangerously-skip-permissions',
     ]
-    args.push(sessionCreated ? '--resume' : '--session-id', sessionId!)
+    if (isolated) {
+      args.push('--session-id', randomUUID()) // 매번 새 세션 — 사용자 대화 맥락 오염 X (정체성·기억은 SYSTEM_PROMPT+cwd 로 그대로)
+    } else {
+      ensureSessionId()
+      args.push(sessionCreated ? '--resume' : '--session-id', sessionId!)
+    }
     if (SYSTEM_PROMPT) args.push('--append-system-prompt', SYSTEM_PROMPT)
 
     const env = { ...process.env }
@@ -202,7 +208,7 @@ export async function chatStream(
     const [errText, exitCode] = await Promise.all([stderrPromise, proc.exited])
 
     if (cancelled) {
-      sessionCreated = true; saveSession()
+      if (!isolated) { sessionCreated = true; saveSession() }
       const p = response.trim()
       return { response: p ? p + '\n\n(취소됨)' : '(취소됨)', display: (display.trim() || '') + '\n\n(취소됨)' }
     }
@@ -219,7 +225,7 @@ export async function chatStream(
       }
     }
 
-    sessionCreated = true; saveSession()
+    if (!isolated) { sessionCreated = true; saveSession() }
     return { response: response.trim() || '(응답 없음)', display: display.trim() }
   } finally {
     busy = false; currentProc = null
@@ -231,10 +237,11 @@ export async function chatStream(
 // 세션 에러 / OOM(137) 시 새 세션으로 1회 재시도. 사용량 한도·인증 만료는 재시도 안 함.
 export async function chatStreamWithRetry(
   message: string,
-  onChunk: (displayText: string) => void
+  onChunk: (displayText: string) => void,
+  opts: { isolated?: boolean } = {}
 ): Promise<{ response: string; display: string }> {
   try {
-    return await chatStream(message, onChunk)
+    return await chatStream(message, onChunk, opts)
   } catch (err: any) {
     if (err.isUsageLimit) throw err
     const msg = err.message || ''
@@ -242,8 +249,8 @@ export async function chatStreamWithRetry(
     const isSessionError = !isHookError && /session|resume/i.test(msg)
     const isOOMKill = err.exitCode === 137 || msg.includes('exit code 137')
     if (isSessionError || isOOMKill) {
-      clearSession()
-      return await chatStream(message, onChunk)
+      if (!opts.isolated) clearSession() // 격리 세션은 매번 새 id 라 clearSession 불필요
+      return await chatStream(message, onChunk, opts)
     }
     throw err
   }

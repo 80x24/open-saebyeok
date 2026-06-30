@@ -32,7 +32,8 @@ const DEFAULT_HEARTBEAT_CRON = '0 */2 * * *' // 매 2시간 (HEARTBEAT.md 기준
 const heartbeatCron = process.env.HEARTBEAT_CRON === 'off' ? '' : (process.env.HEARTBEAT_CRON || DEFAULT_HEARTBEAT_CRON)
 const startHb = (notify: (t: string) => Promise<void>) =>
   startHeartbeat(heartbeatCron, {
-    claudeHome: DATA_DIR, chat: chatStreamWithRetry, notify, isBusy,
+    // 하트비트는 격리 세션으로 실행 — 사용자 대화 맥락을 오염시키지 않음 (Hermes: cron 마다 fresh instance)
+    claudeHome: DATA_DIR, chat: (m, cb) => chatStreamWithRetry(m, cb, { isolated: true }), notify, isBusy,
   })
 
 // 시작/재시작 인사 — 기본 ON (relay 외 모든 기능 기본 ON 정책).
