@@ -13,6 +13,10 @@ OS="$(uname)"
 
 mkdir -p "$DATA_DIR"
 
+# launchd/systemd 는 사용자 셸 PATH 를 물려받지 않는다 → 봇이 spawn 하는 `claude`(보통 /opt/homebrew/bin),
+# `bun`(~/.bun/bin) 을 못 찾는다. 데몬에 명시 PATH 를 박는다. (claude 미발견 시 "Executable not found" 방지)
+DAEMON_PATH="$HOME/.bun/bin:$HOME/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
 if [ "$OS" = "Darwin" ]; then
   LABEL="com.80x24.$APP_NAME"
   PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
@@ -31,6 +35,11 @@ if [ "$OS" = "Darwin" ]; then
   <key>Label</key><string>$LABEL</string>
   <key>ProgramArguments</key>
   <array><string>/bin/bash</string><string>$RUN</string></array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key><string>$DAEMON_PATH</string>
+    <key>HOME</key><string>$HOME</string>
+  </dict>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
   <key>WorkingDirectory</key><string>$REPO_DIR/bot</string>
@@ -60,6 +69,7 @@ Description=$APP_NAME bot (auto-start)
 After=network-online.target
 
 [Service]
+Environment=PATH=$DAEMON_PATH
 ExecStart=/bin/bash $RUN
 Restart=always
 RestartSec=5
