@@ -27,8 +27,11 @@ const buildHandler = () => createMessageHandler({
   status: sessionStatus,
 })
 
+// 하트비트 — 기본 ON (relay 외 모든 기능 기본 ON 정책). 끄려면 HEARTBEAT_CRON=off, 주기 변경은 cron 값 지정.
+const DEFAULT_HEARTBEAT_CRON = '0 */2 * * *' // 매 2시간 (HEARTBEAT.md 기준)
+const heartbeatCron = process.env.HEARTBEAT_CRON === 'off' ? '' : (process.env.HEARTBEAT_CRON || DEFAULT_HEARTBEAT_CRON)
 const startHb = (notify: (t: string) => Promise<void>) =>
-  startHeartbeat(process.env.HEARTBEAT_CRON || '', {
+  startHeartbeat(heartbeatCron, {
     claudeHome: DATA_DIR, chat: chatStreamWithRetry, notify, isBusy,
   })
 
@@ -43,11 +46,11 @@ process.on('unhandledRejection', (e: any) => {
   console.error('✗ unhandledRejection:', e) // 치명 아닐 수 있어 로그만 (반복되면 uncaughtException 으로 드러남)
 })
 
-// 시작 후 하루 1회 버전 체크 — 구버전이면 알림(대화형 유도) 또는 자동 업그레이드(AUTO_UPGRADE=true)
+// 시작 후 하루 1회 버전 체크 — 기본 자동 업그레이드 ON (relay 외 모든 기능 기본 ON 정책). 끄려면 AUTO_UPGRADE=false (알림만 하고 "업데이트해줘" 유도).
 const REPO_DIR = join(import.meta.dir, '..')
 const versionCheck = () => checkUpdate(REPO_DIR).then(async (r) => {
   if (!r || r.behind <= 0) return
-  if (process.env.AUTO_UPGRADE === 'true') {
+  if (process.env.AUTO_UPGRADE !== 'false') {
     await activeChannel?.notify(`🆕 새 버전(${r.behind}개 커밋) — 자동 업데이트할게요…`)
     const p = Bun.spawn(['bash', join(REPO_DIR, 'scripts', 'upgrade.sh')], { stdout: 'inherit', stderr: 'inherit' })
     await p.exited

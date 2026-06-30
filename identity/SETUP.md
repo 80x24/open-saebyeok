@@ -65,9 +65,11 @@ SLACK_OWNER_ID=U01ABC...
 EOF
 ```
 
-## 4단계 — 봇 켜기
+## 4단계 — 봇 켜기 (상시 데몬, 기본 ON)
 
-- 처음이면: `cd <설치경로>/bot && ./run.sh`
+- 처음이면: `bash <설치경로>/scripts/install-daemon.sh` — 봇을 상시 데몬으로 등록해 바로 켜고, **재부팅·로그인 후에도 자동 시작**합니다.
+  - 데몬 없이 한 번만 띄우려면: `cd <설치경로>/bot && ./run.sh`
+  - 상시 데몬 끄기: `bash <설치경로>/scripts/install-daemon.sh uninstall`
 - 이미 켜져 있으면: 메신저에서 `/restart`
 
 ## 5단계 — 첫 인사

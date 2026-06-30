@@ -68,15 +68,32 @@ else
   bash "$REPO_DIR/scripts/setup-cli.sh" on
 fi
 
+# 5-c) 상시 데몬 — 기본 ON (opt-out). 재부팅·로그인 후 자동 시작 (macOS launchd / Linux systemd).
+#       채널이 설정돼 있을 때만 등록 (미설정 시 크래시루프 방지 — 신규 설치는 셋업 위자드가 채널 설정 후 등록).
+#       끄려면: DAEMON=off ./install.sh  또는  bash scripts/install-daemon.sh uninstall
+CH="$(grep -E '^CHANNEL=' "$REPO_DIR/bot/.env" 2>/dev/null | head -1 | cut -d= -f2- | sed 's/#.*//' | tr -d '[:space:]')"
+if [ "${DAEMON:-on}" = "off" ]; then
+  echo "▶ 상시 데몬 비활성(off) — 건너뜀 (수동 실행: bot/run.sh)"
+elif [ -z "$CH" ]; then
+  echo "▶ 채널 미설정 — 상시 데몬은 채널 설정(\"설정 시작\") 후 자동 등록됩니다."
+else
+  bash "$REPO_DIR/scripts/install-daemon.sh"
+fi
+
 if [ -z "$QUIET" ]; then
 cat <<EOF
 
 ✅ 설치 완료. 다음 단계:
   1) Claude Code 에서 "설정 시작" 이라고 하세요 — 채널·토큰을 대화로 안내합니다.
      (또는 직접 $REPO_DIR/bot/.env 에 CHANNEL·토큰 입력)
-  2) cd $REPO_DIR/bot && ./run.sh
+  2) 채널이 설정되면 상시 데몬이 봇을 자동 실행합니다 (재부팅·로그인 후 자동 시작).
+     데몬 없이 한 번만 띄우려면: cd $REPO_DIR/bot && ./run.sh
   3) 메신저로 첫 메시지를 보내면 — 에이전트가 가장 먼저 "이름"을 물어봅니다.
 
-ℹ️  터미널 claude 의 nuanua 참조는 기본 ON 입니다. 끄려면: bash $REPO_DIR/scripts/setup-cli.sh off
+ℹ️  relay(유료) 외 기능은 모두 기본 ON 입니다 (대화로 끌 수 있음):
+    · 터미널 claude 의 nuanua 참조 — 끄기: bash $REPO_DIR/scripts/setup-cli.sh off
+    · 상시 데몬(자동시작) — 끄기: bash $REPO_DIR/scripts/install-daemon.sh uninstall
+    · 하트비트(자율 루틴, 매 2시간) — 끄기: bot/.env 에 HEARTBEAT_CRON=off
+    · 자동 업그레이드 — 끄기: bot/.env 에 AUTO_UPGRADE=false
 EOF
 fi

@@ -31,3 +31,12 @@
 1. `cat ~/.nuanua/.nuanua-path` 로 설치 경로 확인 (보통 `~/nuanua`)
 2. `bash <경로>/scripts/upgrade.sh` 실행 — 코드만 갱신, `~/.nuanua`(정체성·기억)는 보존
 3. 끝나면 응답에 `[[do:restart]]` 를 넣어 새 코드로 재시작
+
+## 기능 토글 — relay(유료) 외 전부 기본 ON, 사용자가 말로 OFF 가능
+설치 경로 `<경로>` = `cat ~/.nuanua/.nuanua-path` (보통 `~/nuanua`). 사용자가 끄거나 켜달라 하면 **네 도구(Bash/Edit)로 직접 처리**하고 결과를 자연스럽게 전하라 (사용자에게 명령을 시키지 마라):
+- **말투 압축(caveman)** → 위 "말투" 규칙대로 ("카브맨 꺼/평소대로", "카브맨 lite|full|ultra").
+- **터미널 CLI 참조** → 끄기 `bash <경로>/scripts/setup-cli.sh off` / 켜기 `... on`.
+- **상시 데몬(자동시작)** → 끄기 `bash <경로>/scripts/install-daemon.sh uninstall` / 켜기 `bash <경로>/scripts/install-daemon.sh`.
+- **하트비트(자율 루틴, 기본 매 2시간)** → `<경로>/bot/.env` 의 `HEARTBEAT_CRON` 을 `off` 로(끄기) 또는 원하는 cron 으로(주기 변경) 설정하고 `[[do:restart]]`. 다시 기본으로는 그 줄을 비우면 됨.
+- **자동 업그레이드** → 끄기: `<경로>/bot/.env` 에 `AUTO_UPGRADE=false` 두고 `[[do:restart]]` / 켜기: 그 줄 제거.
+- **relay(외출 중에도 작동, 유료)** 는 기본 OFF — 원하면 `bash <경로>/scripts/setup-relay.sh` 안내.
