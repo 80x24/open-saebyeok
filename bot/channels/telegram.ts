@@ -4,8 +4,13 @@ import { autoRetry } from '@grammyjs/auto-retry'
 import type { Channel, IncomingMessage, ReplyHandle } from './channel'
 import { resolveOwner } from './owner'
 import { classifyExt, saveAttachment, readTextSafe } from '../media'
+import { toTelegramHtml } from './tg-format'
 
 const NO_PREVIEW = { link_preview_options: { is_disabled: true } } as const
+const HTML = { ...NO_PREVIEW, parse_mode: 'HTML' as const }
+
+// 마크다운→HTML 로 보내되, 텔레그램이 엔티티 파싱에 실패하면 평문으로 폴백.
+const isParseErr = (e: any) => /can't parse entities|parse_mode|entities/i.test(e?.description || e?.message || '')
 
 export function createTelegramChannel(): Channel {
   const token = process.env.TELEGRAM_BOT_TOKEN
@@ -20,7 +25,11 @@ export function createTelegramChannel(): Channel {
   const notify = async (text: string) => {
     const ownerId = Number(process.env.TELEGRAM_CHAT_ID || 0)
     if (!ownerId) return
-    try { await bot.api.sendMessage(ownerId, text, NO_PREVIEW) } catch {}
+    try { await bot.api.sendMessage(ownerId, toTelegramHtml(text), HTML) }
+    catch (e: any) {
+      if (!isParseErr(e)) return
+      try { await bot.api.sendMessage(ownerId, text, NO_PREVIEW) } catch {}
+    }
   }
 
   // reply_to_message → replyTo 정규화
@@ -51,10 +60,19 @@ export function createTelegramChannel(): Channel {
         let messageId: number | null = null
         const ensure = async (text: string) => {
           const t = text.slice(-3900) || '...'
+          const html = toTelegramHtml(t)
           if (messageId == null) {
-            const m = await ctx.reply(t, NO_PREVIEW); messageId = m.message_id
+            try {
+              const m = await ctx.reply(html, HTML); messageId = m.message_id
+            } catch (e: any) {
+              if (!isParseErr(e)) throw e
+              const m = await ctx.reply(t, NO_PREVIEW); messageId = m.message_id
+            }
           } else {
-            try { await ctx.api.editMessageText(ctx.chat.id, messageId, t, NO_PREVIEW) } catch {}
+            try { await ctx.api.editMessageText(ctx.chat.id, messageId, html, HTML) }
+            catch (e: any) {
+              if (isParseErr(e)) { try { await ctx.api.editMessageText(ctx.chat.id, messageId, t, NO_PREVIEW) } catch {} }
+            }
           }
         }
         const reply: ReplyHandle = { update: ensure, final: ensure }
