@@ -60,7 +60,7 @@ export function createMessageHandler(deps: HandlerDeps) {
   }
 
   // 현재 세션 id 를 메시지 상단 헤더로 (#abc12345) — 무슨 세션인지 보고 전환할 수 있게
-  const header = () => { const id = deps.status?.().id; return id ? `\`#${id.slice(0, 8)}\`\n` : '' }
+  const header = () => { const id = deps.status?.().id; return id ? `#${id.slice(0, 8)}\n` : '' }
 
   return async (msg: IncomingMessage, reply: ReplyHandle): Promise<void> => {
     if (!msg.isOwner) return
