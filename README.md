@@ -160,6 +160,7 @@ nuanua/                    # 코드·지침 (THE RULE — git 으로 버전업)
 ### 로드맵
 
 - [x] 텍스트·답장·이미지·파일 입력 · dual interface · 세션 관리 · 버전 체크 · 자동시작 데몬 · CLI opt-in
+- [x] 정체성·사용자·스킬 인덱스 시스템 프롬프트 주입 · 자율 기억+회상(`memory.sh`) · 격리 하트비트 · AgentSkills `SKILL.md` 포맷+`requires` 게이트 · 시작 인사 · 기능 기본 ON(relay 제외)
 - [ ] 슬랙 어댑터 실사용 검증 (e2e)
 - [ ] 음성(STT/TTS) — 옵셔널(무거운 백엔드라 별도 설치)
 - [ ] 스킬 사용 telemetry 기반 Curator (현재는 파일 수정시각 기준)

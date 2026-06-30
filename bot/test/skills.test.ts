@@ -40,6 +40,29 @@ describe('스킬 승인 게이트', () => {
   })
 })
 
+describe('AgentSkills 디렉토리 포맷 (<name>/SKILL.md)', () => {
+  const pendingDir = (name: string) => {
+    mkdirSync(join(home, 'skills', 'pending', name), { recursive: true })
+    writeFileSync(join(home, 'skills', 'pending', name, 'SKILL.md'), `---\nname: ${name}\ndescription: 가져온 스킬\n---\n본문`)
+  }
+  test('디렉토리형 스킬도 pending 목록에 잡힌다', () => {
+    pendingDir('imported')
+    expect(listSkills(home).pending).toContain('imported')
+  })
+  test('디렉토리형 스킬 approve 시 디렉토리째 active 로 이동', () => {
+    pendingDir('imported')
+    expect(approveSkill(home, 'imported')).toBe(true)
+    expect(existsSync(join(home, 'skills', 'active', 'imported', 'SKILL.md'))).toBe(true)
+    expect(listSkills(home).active).toContain('imported')
+    expect(listSkills(home).pending).not.toContain('imported')
+  })
+  test('디렉토리형 스킬 reject 도 비파괴 archive', () => {
+    pendingDir('shady')
+    expect(rejectSkill(home, 'shady')).toBe(true)
+    expect(existsSync(join(home, 'skills', 'archive', 'shady', 'SKILL.md'))).toBe(true)
+  })
+})
+
 describe('/skill 명령', () => {
   test('비-skill 텍스트는 null (일반 메시지로 흘러감)', () => {
     expect(handleSkillCommand(home, '안녕')).toBeNull()
