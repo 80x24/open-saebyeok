@@ -49,12 +49,13 @@
 
 그러면 알아서 다 받아서 설치해요. 봇이 돌아가는 데 필요한 다른 프로그램도 **알아서 깔아주니** 신경 쓸 게 없어요.
 
-> 🔧 직접 설치하려면:
+> 🔧 또는 **터미널 한 줄로** (설치·재설치·업그레이드 공용):
 > ```bash
-> git clone https://github.com/80x24/nuanua ~/nuanua
-> cd ~/nuanua && ./install.sh
+> curl -fsSL https://raw.githubusercontent.com/80x24/nuanua/main/bootstrap.sh | bash
 > ```
-> Bun 런타임이 없으면 `install.sh` 가 자동으로 설치합니다.
+> 검수 후 실행하려면: `curl -fsSL <같은 URL> -o nuanua-install.sh && less nuanua-install.sh && bash nuanua-install.sh`
+> 완전 수동: `git clone https://github.com/80x24/nuanua ~/nuanua && cd ~/nuanua && ./install.sh`
+> Bun 런타임이 없으면 자동 설치됩니다 (claude CLI 는 위에서 먼저). 채널 설정은 설치 후 `bash scripts/setup.sh`.
 
 ---
 
