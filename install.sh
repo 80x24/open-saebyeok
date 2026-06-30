@@ -84,8 +84,10 @@ if [ -z "$QUIET" ]; then
 cat <<EOF
 
 ✅ 설치 완료. 다음 단계:
-  1) Claude Code 에서 "설정 시작" 이라고 하세요 — 채널·토큰을 대화로 안내합니다.
-     (또는 직접 $REPO_DIR/bot/.env 에 CHANNEL·토큰 입력)
+  1) 채널·토큰 설정 — 편한 방법 하나:
+     · 빠른 CLI 위자드(언어 선택 → 1/2/3):  bash $REPO_DIR/scripts/setup.sh
+     · 대화로:  Claude Code 에서 "설정 시작"
+     · 수동:  $REPO_DIR/bot/.env 직접 편집
   2) 채널이 설정되면 상시 데몬이 봇을 자동 실행합니다 (재부팅·로그인 후 자동 시작).
      데몬 없이 한 번만 띄우려면: cd $REPO_DIR/bot && ./run.sh
   3) 메신저로 첫 메시지를 보내면 — 에이전트가 가장 먼저 "이름"을 물어봅니다.
