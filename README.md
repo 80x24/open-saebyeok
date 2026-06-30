@@ -139,10 +139,6 @@ nuanua/                    # 코드·지침 (THE RULE — git 으로 버전업)
 - **CLI opt-in**: 터미널 `claude` 에서도 nuanua 데이터를 참조하려면 `bash scripts/setup-cli.sh on` (`~/.claude/CLAUDE.md` 에 참조 블록 추가, `off` 로 제거). 봇은 영향 없음
 - **데이터 백업/영속**: `cd ~/.nuanua && git init` 으로 정체성·기억을 버전관리 (세션·로그는 gitignore)
 
-### 비용 구조
-
-`claude -p` 는 구독 OAuth 로 인증되면 **구독 quota 안에서** 돕니다. `ANTHROPIC_API_KEY` 가 환경에 있으면 그게 우선해 **종량제로 과금**되므로, 봇은 spawn 시 자동으로 제거합니다.
-
 ### Hermes 5기둥 대비
 
 | 기둥 | nuanua |
@@ -161,8 +157,9 @@ nuanua/                    # 코드·지침 (THE RULE — git 으로 버전업)
 
 ### 로드맵
 
+- [x] 텍스트·답장·이미지·파일 입력 · dual interface · 세션 관리 · 버전 체크 · 자동시작 데몬 · CLI opt-in
 - [ ] 슬랙 어댑터 실사용 검증 (e2e)
-- [ ] 음성(STT/TTS)·이미지 첨부
+- [ ] 음성(STT/TTS) — 옵셔널(무거운 백엔드라 별도 설치)
 - [ ] 스킬 사용 telemetry 기반 Curator (현재는 파일 수정시각 기준)
 
 ## 라이선스
