@@ -27,7 +27,7 @@
 ### 💬 슬랙이면 (단계가 조금 많아요 — 천천히 같이)
 슬랙은 "앱"을 하나 만들어 연결해요. 브라우저에서 진행합니다.
 
-> **이미 쓰는 슬랙 앱이 있다면** — 새로 만들지 말고 그 앱에 아래 **2·3·4·5단계(Socket Mode·이벤트·권한·재설치)만 추가**하면 됩니다. 1단계는 건너뛰세요. 봇은 토큰(`xoxb`/`xapp`)만 받으면 동작하므로 새 앱이 필요 없어요.
+> **이미 쓰는 슬랙 앱이 있다면** — 새로 만들지 말고 그 앱에 아래 **2~6단계(Socket Mode·이벤트·Messages Tab·권한·재설치)만 추가**하면 됩니다. 1단계는 건너뛰세요. 봇은 토큰(`xoxb`/`xapp`)만 받으면 동작하므로 새 앱이 필요 없어요.
 > ⚠️ 단, 그 앱이 **이미 다른 봇 서버에 Socket Mode 로 연결돼 동작 중**이면 이벤트가 두 서버로 나뉘어 충돌합니다 — 놀고 있거나 이 봇 전용인 앱일 때만 재사용하세요.
 
 1. **앱 만들기** (새로 만들 때만) — https://api.slack.com/apps → **Create New App** → **From scratch** → 앱 이름 짓고 워크스페이스 선택.
@@ -35,10 +35,12 @@
    - 켜면 토큰을 만들라고 해요 → 권한 **`connections:write`** 선택 → 생성하면 **`xapp-`** 로 시작하는 키가 나옵니다 → 복사.
 3. **메시지 받기 설정** — 왼쪽 **Event Subscriptions** → **Enable Events** 켜기 → **Subscribe to bot events** → **Add Bot User Event** → **`message.im`** 을 추가.
    - 슬랙이 "이 권한이 필요해요" 라고 안내하면 그대로 따라 추가하세요(저장).
-4. **답장 권한 확인** — 왼쪽 **OAuth & Permissions** → **Bot Token Scopes** 에 **`chat:write`** 가 있는지 봅니다(없으면 **Add an OAuth Scope** 로 추가).
-5. **워크스페이스에 설치** — 같은 페이지 위쪽 **Install to Workspace** → 허용 → **`xoxb-`** 로 시작하는 **Bot Token** 이 나옵니다 → 복사.
-6. **본인 ID 복사** — 슬랙 앱에서 본인 프로필 → **⋯ (More)** → **Copy member ID** (예: `U01ABC...`).
-7. **슬랙 SDK 설치** — 터미널에서 `cd <설치경로>/bot && bun add @slack/bolt`
+4. **DM 입력창 켜기** ⚠️ (빠뜨리기 쉬움) — 왼쪽 **App Home** → **Show Tabs** → **Messages Tab** 를 **ON** → 바로 아래 **"Allow users to send Slash commands and messages from the messages tab"** 를 **체크**.
+   - 이걸 안 켜면 봇 DM 에 **"Sending messages to this app has been turned off"** 가 떠서 메시지를 못 보냅니다. (`message.im` 은 "받을 준비", Messages Tab 이 "입력창 열기" — 둘 다 필요.)
+5. **답장 권한 확인** — 왼쪽 **OAuth & Permissions** → **Bot Token Scopes** 에 **`chat:write`** 가 있는지 봅니다(없으면 **Add an OAuth Scope** 로 추가).
+6. **워크스페이스에 설치** — 같은 페이지 위쪽 **Install to Workspace** → 허용 → **`xoxb-`** 로 시작하는 **Bot Token** 이 나옵니다 → 복사.
+7. **본인 ID 복사** — 슬랙 앱에서 본인 프로필 → **⋯ (More)** → **Copy member ID** (예: `U01ABC...`).
+8. **슬랙 SDK 설치** — 터미널에서 `cd <설치경로>/bot && bun add @slack/bolt`
 
 → 필요한 것: **`xoxb-` 토큰**, **`xapp-` 토큰**, **member id**.
 
