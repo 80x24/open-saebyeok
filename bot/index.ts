@@ -98,22 +98,24 @@ const main = async () => {
   // standalone (기본) — 한 대에서 입구+처리 모두.
   // CHANNEL 콤마구분 시 여러 메신저 동시 (CHANNEL=telegram,slack). 받은 채널로 답하고(자동), 엔진·세션·기억은 공유.
   const channels = await loadChannels(process.env.CHANNEL || '')
-  // 능동 알림(하트비트·시작인사·업데이트)은 모든 채널로 브로드캐스트. reply 는 채널별 자동.
-  const broadcast = (t: string) => Promise.allSettled(channels.map((c) => c.notify(t))).then(() => {})
-  activeChannel = { notify: broadcast }
-  console.log(`[${APP_NAME}] MODE=standalone channels=${channels.map((c) => c.name).join('+')} DATA_DIR=${DATA_DIR}`)
+  // 능동 알림(하트비트·시작인사·업데이트)은 reply 가 아니라서 받은 채널이 없음 → 주 채널 1곳으로만 보낸다.
+  // 주 채널 = NOTIFY_CHANNEL 지정값, 없으면 CHANNEL 목록의 첫 채널(기존에 설정한 채널). reply 는 채널별 자동.
+  const primary = channels.find((c) => c.name === (process.env.NOTIFY_CHANNEL || '').trim().toLowerCase()) || channels[0]
+  const notify = (t: string) => primary.notify(t)
+  activeChannel = { notify }
+  console.log(`[${APP_NAME}] MODE=standalone channels=${channels.map((c) => c.name).join('+')} notify=${primary.name} DATA_DIR=${DATA_DIR}`)
 
   if (needsBootstrap(DATA_DIR)) {
-    await broadcast(
+    await notify(
       `🌱 ${APP_NAME} 설치 완료!\n\n` +
       '저는 아직 이름이 없어요. 먼저 저를 뭐라고 부를지 정해주세요.\n' +
       '메시지로 이름을 보내주시면 정체성을 설정할게요. (다른 걸 먼저 물어봐도 괜찮아요.)'
     )
   } else {
-    await greetStartup(broadcast) // 시작/재시작 인사
+    await greetStartup(notify) // 시작/재시작 인사
   }
 
-  startHb(broadcast)
+  startHb(notify)
   const handler = buildHandler() // 모든 채널이 같은 핸들러(=공유 엔진/세션) 사용
   await Promise.all(channels.map((c) => c.start(handler)))
 }
