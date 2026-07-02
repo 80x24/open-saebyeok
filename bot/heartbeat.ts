@@ -28,8 +28,11 @@ export async function runHeartbeatOnce(deps: HeartbeatDeps): Promise<HeartbeatRe
     if (archived.length) console.log(`[heartbeat] curator archived: ${archived.join(', ')}`)
 
     // 2) HEARTBEAT.md 지침을 claude 로 실행
+    //    HEARTBEAT_LANG(.env, 옵션) 설정 시 요약 보고 언어를 강제한다. 기본(미설정)은 중립.
+    const lang = process.env.HEARTBEAT_LANG?.trim()
+    const langNote = lang ? ` 보고(요약)는 반드시 ${lang}(으)로 작성하세요.` : ''
     const { response } = await deps.chat(
-      `[자동 하트비트] 아래 지침을 수행하세요. 끝에 결과를 한 줄로 요약 보고하세요.\n\n${instructions}`,
+      `[자동 하트비트] 아래 지침을 수행하세요. 끝에 결과를 한 줄로 요약 보고하세요.${langNote}\n\n${instructions}`,
       () => {}
     )
     const summary = response?.trim() || ''
